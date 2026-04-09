@@ -1,0 +1,93 @@
+{
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "projects": "Projects",
+    "contact": "Contact",
+    "s_list": [
+      "Influencer / KOL marketing",
+      "Production",
+      "Graphic Design",
+      "VDO Motion"
+    ]
+  },
+  "hero": {
+    "title1": "CREATIVE",
+    "title2": "BRANDING",
+    "title3": "AGENCY",
+    "v_label": "Source of bold ideas /",
+    "desc_l": "Where brands are reborn and digital boundaries are reimagined through creativity. We craft bold identities that stand out.",
+    "desc_r": "From strategy to visual DNA — we help brands redefine, not just refresh.",
+    "s_label": "Success Rate",
+    "s_sub": "Win beyond market",
+    "c_label": "Global Clients",
+    "c_title": "Reload your brand",
+    "c_desc": "Expanding digital presence with premium, handcrafted logic.",
+    "b_branding": "Branding",
+    "b_content": "Content",
+    "b_strategy": "Creative Strategy"
+  },
+  "projects": {
+    "label": "SELECTED WORK",
+    "title": "PREMIUM<br />PROJECTS",
+    "tagline": "High-impact visual narratives"
+  },
+  "services": {
+    "subtitle": "EVERYTHING YOUR BRAND NEEDS TO GROW",
+    "m": "EVERYTHING",
+    "y": "YOUR",
+    "b": "BRAND",
+    "n": "NEEDS TO",
+    "g": "GROW",
+    "influencer": {
+      "title": "Influencer / KOL marketing",
+      "desc": "Connecting your brand with the right voices for viral engagement."
+    },
+    "production": {
+      "title": "Production",
+      "desc": "High-end cinematic storytelling from concept to final cut."
+    },
+    "graphic": {
+      "title": "Graphic Design",
+      "desc": "Bold visual languages that define modern brand identities."
+    },
+    "motion": {
+      "title": "VDO Motion",
+      "desc": "Dynamic motion graphics that bring your digital presence to life."
+    }
+  },
+  "clients": {
+    "label": "Trusted by Global Visionaries",
+    "desc": "We help startups and big brands alike reach their full digital potential through artisanal code and bespoke design.",
+    "cta": "Become our partner"
+  },
+  "footer": {
+    "cta": "Let's build <br/>something <highlight>extraordinary</highlight>",
+    "cta_btn": "Start a Project",
+    "services": "Services",
+    "legal": "Legal",
+    "social": "Social",
+    "rights": "All Rights Reserved."
+  },
+  "contact": {
+    "title": "LET'S START A <br/>NEW PROJECT",
+    "subtitle": "Have a vision? We have the craft. Let's build it together.",
+    "label_name": "Full Name",
+    "label_email": "Email Address",
+    "label_service": "How can we help?",
+    "label_message": "Tell us about your project",
+    "btn_send": "Send Message",
+    "info_title": "Contact Info",
+    "info_office": "Our Office",
+    "info_social": "Follow Us"
+  },
+  "all_projects": {
+    "title": "ARCHIVE OF <br/>EXCELLENCE",
+    "subtitle": "A collection of high-impact visual narratives and strategic brand transformations.",
+    "filter_all": "All Work",
+    "filter_branding": "Branding",
+    "filter_production": "Production",
+    "filter_content": "Content",
+    "view_details": "View Case Study"
+  }
+}
