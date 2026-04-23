@@ -16,10 +16,51 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from 'next-intl';
+import { toast } from "sonner";
+import { useState } from "react";
 
 export default function ContactPage() {
   const t = useTranslations('contact');
   const common = useTranslations('footer');
+  
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+
+  const toggleService = (service: string) => {
+    setSelectedServices(prev => 
+      prev.includes(service) ? prev.filter(s => s !== service) : [...prev, service]
+    );
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name || !formData.email) return toast.error("Please fill in name and email");
+
+    setLoading(true);
+    try {
+      const res = await fetch('/api/contacts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, services: selectedServices })
+      });
+
+      if (res.ok) {
+        toast.success("Message sent successfully! We'll contact you soon.");
+        setFormData({ name: '', email: '', message: '' });
+        setSelectedServices([]);
+      } else {
+        toast.error("Failed to send message. Please try again.");
+      }
+    } catch (err) {
+      toast.error("Something went wrong.");
+    }
+    setLoading(false);
+  };
 
   return (
     <main className="relative min-h-screen bg-black text-white font-sans overflow-hidden">
@@ -65,15 +106,27 @@ export default function ContactPage() {
               </p>
             </div>
 
-            <form className="space-y-8 max-w-xl">
+            <form onSubmit={handleSubmit} className="space-y-8 max-w-xl">
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="flex flex-col gap-2">
                      <label className="text-[10px] font-bold uppercase tracking-widest text-white/40 ml-1">{t('label_name')}</label>
-                     <input type="text" className="bg-white/5 border border-white/10 rounded-2xl py-4 px-6 focus:outline-none focus:border-blue-500/50 transition-all text-sm font-medium" />
+                     <input 
+                        type="text" 
+                        required
+                        value={formData.name}
+                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                        className="bg-white/5 border border-white/10 rounded-2xl py-4 px-6 focus:outline-none focus:border-blue-500/50 transition-all text-sm font-medium" 
+                     />
                   </div>
                   <div className="flex flex-col gap-2">
                      <label className="text-[10px] font-bold uppercase tracking-widest text-white/40 ml-1">{t('label_email')}</label>
-                     <input type="email" className="bg-white/5 border border-white/10 rounded-2xl py-4 px-6 focus:outline-none focus:border-blue-500/50 transition-all text-sm font-medium" />
+                     <input 
+                        type="email" 
+                        required
+                        value={formData.email}
+                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        className="bg-white/5 border border-white/10 rounded-2xl py-4 px-6 focus:outline-none focus:border-blue-500/50 transition-all text-sm font-medium" 
+                     />
                   </div>
                </div>
 
@@ -81,7 +134,16 @@ export default function ContactPage() {
                   <label className="text-[10px] font-bold uppercase tracking-widest text-white/40 ml-1">{t('label_service')}</label>
                   <div className="flex flex-wrap gap-2">
                      {["Influencer", "Production", "Design", "Marketing"].map((s) => (
-                        <button key={s} type="button" className="px-5 py-2 rounded-full border border-white/10 text-[9px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all">
+                        <button 
+                          key={s} 
+                          type="button" 
+                          onClick={() => toggleService(s)}
+                          className={`px-5 py-2 rounded-full border transition-all text-[9px] font-black uppercase tracking-widest ${
+                            selectedServices.includes(s) 
+                            ? "bg-blue-600 border-blue-600 text-white" 
+                            : "border-white/10 text-white hover:bg-white hover:text-black"
+                          }`}
+                        >
                            {s}
                         </button>
                      ))}
@@ -90,13 +152,26 @@ export default function ContactPage() {
 
                <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-white/40 ml-1">{t('label_message')}</label>
-                  <textarea rows={4} className="bg-white/5 border border-white/10 rounded-[2rem] py-4 px-6 focus:outline-none focus:border-blue-500/50 transition-all text-sm font-medium resize-none" />
+                  <textarea 
+                    rows={4} 
+                    value={formData.message}
+                    onChange={(e) => setFormData({...formData, message: e.target.value})}
+                    className="bg-white/5 border border-white/10 rounded-[2rem] py-4 px-6 focus:outline-none focus:border-blue-500/50 transition-all text-sm font-medium resize-none" 
+                  />
                </div>
 
-               <button className="group flex items-center gap-4 bg-blue-600 hover:bg-blue-500 text-white rounded-full pl-8 pr-2 py-2 transition-all shadow-xl shadow-blue-600/20 active:scale-95">
-                  <span className="text-[11px] font-black uppercase tracking-[0.2em]">{t('btn_send')}</span>
+               <button 
+                  type="submit"
+                  disabled={loading}
+                  className="group flex items-center gap-4 bg-blue-600 hover:bg-blue-500 text-white rounded-full pl-8 pr-2 py-2 transition-all shadow-xl shadow-blue-600/20 active:scale-95 disabled:opacity-50"
+               >
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em]">{loading ? "Sending..." : t('btn_send')}</span>
                   <div className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center group-hover:rotate-12 transition-transform">
-                     <ArrowUpRight size={18} />
+                     {loading ? (
+                        <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                     ) : (
+                        <ArrowUpRight size={18} />
+                     )}
                   </div>
                </button>
             </form>

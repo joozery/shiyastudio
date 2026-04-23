@@ -24,24 +24,24 @@ export const Footer = () => {
       <div className="max-w-7xl mx-auto relative z-10">
         
         {/* Top Section: Big CTA */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-12 mb-20 md:mb-32">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 md:gap-12 mb-16 md:mb-32">
           <div className="max-w-2xl text-left">
             <h2 
-              className="text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-tighter leading-[0.9] mb-8"
+              className="text-2xl sm:text-3xl md:text-6xl lg:text-7xl font-black uppercase tracking-tighter leading-[0.9] mb-6 md:mb-8"
               dangerouslySetInnerHTML={{ 
                 __html: t.raw('cta').replace('<highlight>', '<span class="text-blue-600 underline decoration-blue-600/30 underline-offset-8">').replace('</highlight>', '</span>') 
               }}
             />
-            <p className="text-white/40 text-sm md:text-base font-medium max-w-md leading-relaxed">
+            <p className="text-white/40 text-[10px] sm:text-xs md:text-sm md:text-base font-medium max-w-md leading-relaxed">
                {t('rights')}
             </p>
           </div>
           
           <Link href="/contact" className="group relative ml-auto md:ml-0">
-             <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-white text-black flex items-center justify-center transition-all duration-500 hover:bg-blue-600 hover:text-white hover:scale-105 active:scale-95 shadow-xl group-hover:shadow-[0_0_50px_rgba(37,99,235,0.4)]">
-                <ArrowUpRight className="w-10 h-10 md:w-14 md:h-14 group-hover:rotate-12 transition-transform" />
+             <div className="w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 rounded-full bg-white text-black flex items-center justify-center transition-all duration-500 hover:bg-blue-600 hover:text-white hover:scale-105 active:scale-95 shadow-xl group-hover:shadow-[0_0_50px_rgba(37,99,235,0.4)]">
+                <ArrowUpRight className="w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 group-hover:rotate-12 transition-transform" />
              </div>
-             <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-bold uppercase tracking-[0.3em] opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0 duration-500 text-white">
+             <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8px] font-bold uppercase tracking-[0.3em] opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0 duration-500 text-white">
                 {t('cta_btn')}
              </div>
           </Link>

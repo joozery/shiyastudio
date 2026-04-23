@@ -54,6 +54,10 @@
     "motion": {
       "title": "VDO Motion",
       "desc": "Dynamic motion graphics that bring your digital presence to life."
+    },
+    "music": {
+      "title": "Mix master Music",
+      "desc": "Professional audio mixing and mastering for a polished sonic experience."
     }
   },
   "clients": {

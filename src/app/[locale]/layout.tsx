@@ -47,9 +47,11 @@ export default async function RootLayout({
     <html
       lang={locale}
       className={`${notoThai.variable} h-full antialiased font-sans`}
+      suppressHydrationWarning
     >
       <body 
         className="min-h-full flex flex-col bg-background text-foreground family-noto"
+        style={{ position: 'relative' }}
         suppressHydrationWarning
       >
         <NextIntlClientProvider messages={messages}>

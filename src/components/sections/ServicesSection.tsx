@@ -1,39 +1,31 @@
 "use client";
 
-import React, { useRef, useMemo } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Play, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from 'next-intl';
+import { Link } from '@/navigation';
 
 export const ServicesSection = () => {
   const t = useTranslations('services');
+  const [services, setServices] = useState<any[]>([
+    { category: "MARKETING", title: t('influencer.title'), image: "/service-influencer.png", description: t('influencer.desc'), slug: "influencer" },
+    { category: "CREATIVE", title: t('production.title'), image: "/service-production.png", description: t('production.desc'), slug: "production" },
+    { category: "DESIGN", title: t('graphic.title'), image: "/service-graphic.png", description: t('graphic.desc'), slug: "graphic-design" },
+    { category: "MOTION", title: t('motion.title'), image: "/service-motion.png", description: t('motion.desc'), slug: "vdo-motion" },
+    { category: "AUDIO", title: t('music.title'), image: "/service-music.png", description: t('music.desc'), slug: "mix-master-music" }
+  ]);
 
-  const services = useMemo(() => [
-    {
-      category: "MARKETING",
-      title: t('influencer.title'),
-      image: "/service-influencer.png",
-      description: t('influencer.desc')
-    },
-    {
-      category: "CREATIVE",
-      title: t('production.title'),
-      image: "/service-production.png",
-      description: t('production.desc')
-    },
-    {
-      category: "DESIGN",
-      title: t('graphic.title'),
-      image: "/service-graphic.png",
-      description: t('graphic.desc')
-    },
-    {
-      category: "MOTION",
-      title: t('motion.title'),
-      image: "/service-motion.png",
-      description: t('motion.desc')
-    }
-  ], [t]);
+  useEffect(() => {
+    fetch('/api/services')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.services && data.services.length > 0) {
+          setServices(data.services);
+        }
+      })
+      .catch(err => console.error('Failed to load services', err));
+  }, []);
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -46,11 +38,11 @@ export const ServicesSection = () => {
   };
 
   return (
-    <section className="relative w-full py-20 px-6 md:px-12 bg-[#F6F6F6] text-black font-sans overflow-hidden">
+    <section className="relative w-full py-20 px-4 md:px-12 bg-[#F6F6F6] text-black font-sans overflow-hidden">
       
       {/* Mixed Typography Header */}
-      <div className="max-w-4xl mx-auto text-center mb-16 md:mb-20">
-        <h2 className="text-[2rem] sm:text-[2.5rem] md:text-[4rem] lg:text-[5rem] tracking-tighter leading-[0.9] select-none uppercase">
+      <div className="max-w-4xl mx-auto text-center mb-10 md:mb-20 px-4">
+        <h2 className="text-[1.75rem] sm:text-[2.25rem] md:text-[4rem] lg:text-[5rem] tracking-tighter leading-[1] md:leading-[0.9] select-none uppercase">
           <span className="font-light text-zinc-400">{t('m')}</span> <span className="font-bold text-zinc-800">{t('y')}</span><br />
           <span className="font-bold text-zinc-800">{t('b')}</span> <span className="font-light text-zinc-400 italic">{t('n')}</span> <span className="font-bold text-blue-600">{t('g')}</span>
         </h2>
@@ -84,8 +76,9 @@ export const ServicesSection = () => {
           className="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-16 px-4 md:px-20"
         >
           {services.map((service, index) => (
-            <div 
+            <Link 
               key={index} 
+              href={`/services/${service.slug}`}
               className="group relative flex-shrink-0 w-[80vw] sm:w-[50vw] md:w-[400px] aspect-[4/5] md:aspect-square rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-black snap-center transition-all duration-700 hover:scale-[1.02] shadow-2xl"
             >
               {/* Background Still Image */}
@@ -106,12 +99,6 @@ export const ServicesSection = () => {
                  </div>
               </div>
 
-              {/* Hover Play Button */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 scale-50 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-500">
-                 <div className="w-16 h-16 rounded-full bg-blue-600/90 backdrop-blur-md flex items-center justify-center shadow-[0_0_30px_rgba(37,99,235,0.4)]">
-                    <Play className="w-6 h-6 fill-white text-white ml-1" />
-                 </div>
-              </div>
 
               {/* Bottom Content */}
               <div className="absolute bottom-8 left-8 right-8 z-20 flex justify-between items-end gap-12 text-left">
@@ -126,7 +113,7 @@ export const ServicesSection = () => {
                     {service.description}
                  </p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 

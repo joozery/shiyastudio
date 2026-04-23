@@ -1,36 +1,31 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from 'next-intl';
 
-const projects = [
-  {
-    title: "AETHER BRANDING",
-    category: "IDENTITY / CONCEPT",
-    image: "/project-1.png",
-    description: "Reimagining modern minimalism for global luxury brands."
-  },
-  {
-    title: "LUMINA DIGITAL",
-    category: "MOTION / 3D SCULPT",
-    image: "/project-2.png",
-    description: "Creating liquid visual identities for futuristic ecosystems."
-  },
-  {
-    title: "GENESIS CAMPAIGN",
-    category: "PRODUCTION / AD",
-    image: "/project-3.png",
-    description: "High-octane commercial production with cinematic lens."
-  }
-];
-
 export const ProjectsSection = () => {
   const t = useTranslations('projects');
+  const [projects, setProjects] = useState<any[]>([
+    { title: "AETHER BRANDING", category: "IDENTITY / CONCEPT", image: "/project-1.png", description: "Reimagining modern minimalism for global luxury brands." },
+    { title: "LUMINA DIGITAL", category: "MOTION / 3D SCULPT", image: "/project-2.png", description: "Creating liquid visual identities for futuristic ecosystems." },
+    { title: "GENESIS CAMPAIGN", category: "PRODUCTION / AD", image: "/project-3.png", description: "High-octane commercial production with cinematic lens." }
+  ]);
+
+  useEffect(() => {
+    fetch('/api/projects')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.projects && data.projects.length > 0) {
+          setProjects(data.projects);
+        }
+      })
+      .catch(err => console.error('Failed to load projects', err));
+  }, []);
 
   return (
-    <section className="relative w-full py-20 px-6 md:px-12 bg-black text-white font-sans overflow-hidden">
+    <section className="relative w-full py-20 px-4 md:px-12 bg-black text-white font-sans overflow-hidden">
       
       {/* Removed Decorative vertical label */}
 
@@ -43,7 +38,7 @@ export const ProjectsSection = () => {
                <div className="w-10 h-[1.5px] bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.5)]" />
                <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-blue-500">{t('label')}</span>
              </div>
-             <h2 className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.85] uppercase" dangerouslySetInnerHTML={{ __html: t('title') }} />
+             <h2 className="text-4xl sm:text-5xl md:text-8xl font-black tracking-tighter leading-[0.85] uppercase" dangerouslySetInnerHTML={{ __html: t('title') }} />
           </div>
           
           <div className="flex flex-col gap-2 max-w-xs md:text-right text-left">

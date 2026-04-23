@@ -6,16 +6,17 @@ import { Footer } from "@/components/layout/Footer";
 import { ArrowUpRight, Plus, Filter } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from 'next-intl';
+import { Link } from '@/navigation';
 
 const ALL_PROJECTS = [
-  { id: 1, title: "AETHER BRANDING", cat: "branding", img: "/project-1.png", year: "2024" },
-  { id: 2, title: "LUMINA DIGITAL", cat: "production", img: "/project-2.png", year: "2024" },
-  { id: 3, title: "GENESIS CAMPAIGN", cat: "branding", img: "/project-3.png", year: "2023" },
-  { id: 4, title: "VIRTUAL HORIZON", cat: "content", img: "/service-production.png", year: "2024" },
-  { id: 5, title: "NOVA STRATEGY", cat: "branding", img: "/service-motion.png", year: "2023" },
-  { id: 6, title: "CYBER PUNK", cat: "production", img: "/service-influencer.png", year: "2024" },
-  { id: 7, title: "NEO VISUALS", cat: "content", img: "/project-1.png", year: "2024" },
-  { id: 8, title: "ORION BRAND", cat: "branding", img: "/project-2.png", year: "2023" },
+  { id: 1, title: "AETHER BRANDING", slug: "aether-branding", cat: "branding", img: "/project-1.png", year: "2024" },
+  { id: 2, title: "LUMINA DIGITAL", slug: "lumina-digital", cat: "production", img: "/project-2.png", year: "2024" },
+  { id: 3, title: "GENESIS CAMPAIGN", slug: "genesis-campaign", cat: "branding", img: "/project-3.png", year: "2023" },
+  { id: 4, title: "VIRTUAL HORIZON", slug: "virtual-horizon", cat: "content", img: "/service-production.png", year: "2024" },
+  { id: 5, title: "NOVA STRATEGY", slug: "nova-strategy", cat: "branding", img: "/service-motion.png", year: "2023" },
+  { id: 6, title: "CYBER PUNK", slug: "cyber-punk", cat: "production", img: "/service-influencer.png", year: "2024" },
+  { id: 7, title: "NEO VISUALS", slug: "neo-visuals", cat: "content", img: "/project-1.png", year: "2024" },
+  { id: 8, title: "ORION BRAND", slug: "orion-brand", cat: "branding", img: "/project-2.png", year: "2023" },
 ];
 
 export default function ProjectsPage() {
@@ -78,7 +79,9 @@ export default function ProjectsPage() {
         {/* Full Project Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 md:gap-12">
            {filteredProjects.map((project, idx) => (
-             <ProjectCard key={project.id} project={project} index={idx} buttonText={t('view_details')} />
+             <Link key={project.id} href={`/projects/${project.slug}`}>
+               <ProjectCard project={project} index={idx} buttonText={t('view_details')} />
+             </Link>
            ))}
         </div>
 
