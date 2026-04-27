@@ -50,8 +50,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body 
-        className="min-h-full flex flex-col bg-background text-foreground family-noto"
-        style={{ position: 'relative' }}
+        className="min-h-full flex flex-col bg-background text-foreground family-noto relative"
         suppressHydrationWarning
       >
         <NextIntlClientProvider messages={messages}>

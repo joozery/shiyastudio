@@ -45,22 +45,41 @@ export const HeroSection = () => {
       <div className="relative w-full h-full max-w-[1600px] rounded-2xl md:rounded-3xl overflow-hidden border border-white/5 shadow-2xl">
         
         {/* Slider Background Layer */}
-        {slides.map((slide, index) => (
-          <div 
-            key={slide.id}
-            className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${index === current ? 'opacity-100' : 'opacity-0'}`}
-          >
-            <Image 
-              src={slide.img} 
-              alt={`Slide ${index}`} 
-              fill 
-              className="object-cover brightness-[0.6] transition-transform duration-[5s] ease-linear"
-              style={{ transform: index === current ? 'scale(1)' : 'scale(1.1)' }}
-              priority={index === 0}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-          </div>
-        ))}
+        {slides.map((slide, index) => {
+          const isVideo = slide.img?.match(/\.(mp4|webm|mov|ogg)$/i);
+          
+          return (
+            <div 
+              key={slide.id}
+              className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${index === current ? 'opacity-100' : 'opacity-0'}`}
+            >
+              {isVideo ? (
+                <video
+                  src={slide.img}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="w-full h-full object-cover brightness-[0.85]"
+                />
+              ) : (
+                <Image 
+                  src={slide.img || '/placeholder.png'} 
+                  alt={`Slide ${index}`} 
+                  fill 
+                  className="object-cover brightness-[0.85] transition-transform duration-[5s] ease-linear"
+                  style={{ transform: index === current ? 'scale(1)' : 'scale(1.1)' }}
+                  priority={index === 0}
+                  suppressHydrationWarning
+                />
+              )}
+              <div 
+                className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" 
+                suppressHydrationWarning
+              />
+            </div>
+          );
+        })}
 
         {/* Content Layers (Synced with Slider if needed, but keeping core layout stable) */}
         <div className="relative z-10 w-full h-full p-4 md:p-16 flex flex-col justify-between">

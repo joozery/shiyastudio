@@ -225,9 +225,36 @@ export default function ProjectsAdminPage() {
                         <input 
                            type="text" 
                            value={selectedProject.title}
-                           onChange={(e) => handleUpdateProject(projects.findIndex(p => p.id === selectedProject.id), 'title', e.target.value)}
+                           onChange={(e) => {
+                              const projectIdx = projects.findIndex(p => p.id === selectedProject.id);
+                              handleUpdateProject(projectIdx, 'title', e.target.value);
+                              // Auto generate slug if title changes
+                              if (!selectedProject.slug || selectedProject.slug === generateSlug(selectedProject.title)) {
+                                 handleUpdateProject(projectIdx, 'slug', generateSlug(e.target.value));
+                              }
+                           }}
                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-blue-500 transition-all"
                         />
+                     </div>
+                     <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Slug (URL)</label>
+                           <input 
+                              type="text" 
+                              value={selectedProject.slug}
+                              onChange={(e) => handleUpdateProject(projects.findIndex(p => p.id === selectedProject.id), 'slug', e.target.value)}
+                              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:border-blue-500 transition-all"
+                           />
+                        </div>
+                        <div className="space-y-1.5">
+                           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Year</label>
+                           <input 
+                              type="text" 
+                              value={selectedProject.year}
+                              onChange={(e) => handleUpdateProject(projects.findIndex(p => p.id === selectedProject.id), 'year', e.target.value)}
+                              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-blue-500 transition-all"
+                           />
+                        </div>
                      </div>
                      <div className="space-y-1.5">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>

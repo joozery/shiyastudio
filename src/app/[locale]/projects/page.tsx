@@ -8,24 +8,36 @@ import Image from "next/image";
 import { useTranslations } from 'next-intl';
 import { Link } from '@/navigation';
 
-const ALL_PROJECTS = [
-  { id: 1, title: "AETHER BRANDING", slug: "aether-branding", cat: "branding", img: "/project-1.png", year: "2024" },
-  { id: 2, title: "LUMINA DIGITAL", slug: "lumina-digital", cat: "production", img: "/project-2.png", year: "2024" },
-  { id: 3, title: "GENESIS CAMPAIGN", slug: "genesis-campaign", cat: "branding", img: "/project-3.png", year: "2023" },
-  { id: 4, title: "VIRTUAL HORIZON", slug: "virtual-horizon", cat: "content", img: "/service-production.png", year: "2024" },
-  { id: 5, title: "NOVA STRATEGY", slug: "nova-strategy", cat: "branding", img: "/service-motion.png", year: "2023" },
-  { id: 6, title: "CYBER PUNK", slug: "cyber-punk", cat: "production", img: "/service-influencer.png", year: "2024" },
-  { id: 7, title: "NEO VISUALS", slug: "neo-visuals", cat: "content", img: "/project-1.png", year: "2024" },
-  { id: 8, title: "ORION BRAND", slug: "orion-brand", cat: "branding", img: "/project-2.png", year: "2023" },
-];
-
 export default function ProjectsPage() {
   const t = useTranslations('all_projects');
   const [filter, setFilter] = useState("all");
+  const [projects, setProjects] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    fetch('/api/projects')
+      .then(res => res.json())
+      .then(data => {
+        setProjects(data.projects || []);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to load projects', err);
+        setLoading(false);
+      });
+  }, []);
 
   const filteredProjects = filter === "all" 
-    ? ALL_PROJECTS 
-    : ALL_PROJECTS.filter(p => p.cat === filter);
+    ? projects 
+    : projects.filter(p => (p.category || '').toLowerCase().includes(filter.toLowerCase()));
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <main className="relative min-h-screen bg-black text-white font-sans overflow-hidden">
@@ -98,7 +110,7 @@ function ProjectCard({ project, index, buttonText }: any) {
        {/* Image Container */}
        <div className="relative aspect-[16/10] overflow-hidden rounded-[2rem] bg-zinc-900 border border-white/5">
           <Image 
-            src={project.img} 
+            src={project.coverImage || '/placeholder.png'} 
             alt={project.title} 
             fill 
             className="object-cover transition-transform duration-1000 group-hover:scale-110 brightness-[0.85] group-hover:brightness-100"
@@ -120,7 +132,7 @@ function ProjectCard({ project, index, buttonText }: any) {
        {/* Project Info */}
        <div className="flex justify-between items-start px-4">
           <div className="flex flex-col gap-2 text-left">
-             <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/20">{project.cat}</span>
+             <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/20">{project.category}</span>
              <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tighter group-hover:text-blue-500 transition-colors">
                 {project.title}
              </h3>

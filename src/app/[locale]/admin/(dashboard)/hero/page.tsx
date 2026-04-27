@@ -114,16 +114,20 @@ export default function HeroAdminPage() {
                          value={slide.img} 
                          onChange={(e) => handleUpdateSlide(index, 'img', e.target.value)}
                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-slate-700"
-                         placeholder="https://..."
+                         placeholder="Image or Video URL (mp4, webm)"
                        />
                        <label className="flex items-center justify-center bg-slate-100 px-4 rounded-xl cursor-pointer hover:bg-slate-200 hover:text-blue-600 transition-all text-slate-600">
                           <ImageIcon size={18} />
-                          <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files && handleFileUpload(index, e.target.files[0])} />
+                          <input type="file" className="hidden" accept="image/*,video/*" onChange={(e) => e.target.files && handleFileUpload(index, e.target.files[0])} />
                        </label>
                     </div>
                     {slide.img && (
                       <div className="mt-4 aspect-video rounded-xl overflow-hidden bg-slate-100 border border-slate-200 max-w-[240px] shadow-inner">
-                         <img src={slide.img} alt={`Slide ${index}`} className="w-full h-full object-cover" />
+                         {slide.img.match(/\.(mp4|webm|mov|ogg)$/i) ? (
+                            <video src={slide.img} className="w-full h-full object-cover" muted autoPlay loop playsInline />
+                          ) : (
+                            <img src={slide.img} alt={`Slide ${index}`} className="w-full h-full object-cover" />
+                          )}
                       </div>
                     )}
                  </div>

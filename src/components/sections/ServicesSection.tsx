@@ -16,7 +16,9 @@ export const ServicesSection = () => {
     { category: "AUDIO", title: t('music.title'), image: "/service-music.png", description: t('music.desc'), slug: "mix-master-music" }
   ]);
 
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
+    setMounted(true);
     fetch('/api/services')
       .then(res => res.json())
       .then(data => {
@@ -83,13 +85,21 @@ export const ServicesSection = () => {
             >
               {/* Background Still Image */}
               <div className="absolute inset-0">
-                <Image 
-                  src={service.image} 
-                  fill 
-                  alt={service.title} 
-                  className="object-cover opacity-70 group-hover:opacity-90 transition-all duration-1000 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                {mounted && (
+                  <>
+                    <Image 
+                      src={service.image} 
+                      fill 
+                      alt={service.title} 
+                      className="object-cover opacity-85 group-hover:opacity-100 transition-all duration-1000 group-hover:scale-110"
+                      suppressHydrationWarning
+                    />
+                    <div 
+                      className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" 
+                      suppressHydrationWarning
+                    />
+                  </>
+                )}
               </div>
 
               {/* Top Label */}

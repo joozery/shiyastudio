@@ -13,7 +13,10 @@ export const ProjectsSection = () => {
     { title: "GENESIS CAMPAIGN", category: "PRODUCTION / AD", image: "/project-3.png", description: "High-octane commercial production with cinematic lens." }
   ]);
 
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
+    setMounted(true);
+    
     fetch('/api/projects')
       .then(res => res.json())
       .then(data => {
@@ -54,13 +57,23 @@ export const ProjectsSection = () => {
               
               {/* Background Still Image */}
               <div className="absolute inset-0 z-0 text-left">
-                <Image 
-                   src={project.image} 
-                   alt={project.title} 
-                   fill 
-                   className="object-cover transition-transform duration-1000 group-hover:scale-110 brightness-[0.7] group-hover:brightness-100"
+                {(project.image || project.coverImage) ? (
+                  <Image 
+                     src={project.image || project.coverImage} 
+                     alt={project.title} 
+                     fill 
+                     className="object-cover transition-transform duration-1000 group-hover:scale-110 brightness-[0.85] group-hover:brightness-100"
+                     suppressHydrationWarning
+                  />
+                ) : (
+                  <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+                    <span className="text-white/10 text-[10px] font-black uppercase tracking-widest">No Image</span>
+                  </div>
+                )}
+                <div 
+                  className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-70 group-hover:opacity-50 transition-opacity" 
+                  suppressHydrationWarning
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90 group-hover:opacity-60 transition-opacity" />
               </div>
 
               {/* Project Info Overlay */}

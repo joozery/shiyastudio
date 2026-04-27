@@ -65,9 +65,9 @@ export const ClientsSection = () => {
                  <div className="flex whitespace-nowrap animate-marquee gap-4 md:gap-6 items-center">
                     {[...clients, ...clients].map((client, idx) => (
                       <div key={idx} className="flex-shrink-0 group cursor-pointer">
-                        <div className="w-36 h-16 rounded-2xl overflow-hidden border border-white/10 group-hover:border-blue-500/60 transition-all duration-500 bg-zinc-900">
+                        <div className="w-44 h-20 md:w-56 md:h-24 rounded-lg md:rounded-xl overflow-hidden border border-white/10 group-hover:border-blue-500/60 transition-all duration-500 bg-white p-4 flex items-center justify-center">
                            {client.image ? (
-                              <img src={client.image} alt={client.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                              <img src={client.image} alt={client.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500" />
                            ) : (
                               <div className="w-full h-full flex items-center justify-center">
                                 <span className="text-[10px] font-black uppercase tracking-widest text-white/20 group-hover:text-white/40 transition-colors select-none">
@@ -86,9 +86,9 @@ export const ClientsSection = () => {
                  <div className="flex whitespace-nowrap animate-marquee2 gap-4 md:gap-6 items-center">
                     {[...reversedLogos, ...reversedLogos].map((client, idx) => (
                       <div key={idx} className="flex-shrink-0 group cursor-pointer">
-                        <div className="w-36 h-16 rounded-2xl overflow-hidden border border-white/10 group-hover:border-blue-500/60 transition-all duration-500 bg-zinc-900">
+                        <div className="w-44 h-20 md:w-56 md:h-24 rounded-lg md:rounded-xl overflow-hidden border border-white/10 group-hover:border-blue-500/60 transition-all duration-500 bg-white p-4 flex items-center justify-center">
                            {client.image ? (
-                              <img src={client.image} alt={client.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                              <img src={client.image} alt={client.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500" />
                            ) : (
                               <div className="w-full h-full flex items-center justify-center">
                                 <span className="text-[10px] font-black uppercase tracking-widest text-white/20 group-hover:text-blue-400/60 transition-colors select-none">

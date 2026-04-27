@@ -1,6 +1,6 @@
 "use client";
 
-import React, { use } from "react";
+import React, { use, useState, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ArrowLeft, ArrowUpRight, Calendar, Tag, User, Globe, Play, Maximize2 } from "lucide-react";
@@ -8,55 +8,42 @@ import Image from "next/image";
 import { useRouter } from "@/navigation";
 import { Link } from "@/navigation";
 
-const ALL_PROJECTS: any = {
-  "aether-branding": {
-    title: "Aether Branding",
-    subtitle: "Reimagining the future of digital identity for the next generation.",
-    cat: "Identity & Strategy",
-    year: "2024",
-    client: "Aether Dynamics",
-    img: "/project-1.png",
-    description: "A comprehensive brand overhaul for Aether Dynamics. We developed a visual language that speaks to both technical precision and human-centric design. The identity reflects a forward-thinking ethos with a focus on modularity and adaptability in a digital-first world.",
-    challenge: "Developing a visual system that remains consistent across physical and digital mediums while maintaining a high-tech premium feel.",
-    results: [
-      { label: "Reach", val: "2.4M" },
-      { label: "Recall", val: "+85%" },
-      { label: "Growth", val: "30%" }
-    ],
-    media: [
-      { type: "video", url: "https://cdn.pixabay.com/video/2021/04/12/70878-537443831_tiny.mp4", caption: "Brand Anthem Video" },
-      { type: "image", url: "/project-1.png", caption: "Logo Construction & Grid" },
-      { type: "image", url: "/project-2.png", caption: "Digital Assets Interface" },
-      { type: "video", url: "https://cdn.pixabay.com/video/2022/05/23/117904-713210168_tiny.mp4", caption: "Motion Guidelines" },
-      { type: "image", url: "/project-3.png", caption: "Physical Stationery Set" }
-    ]
-  },
-  "lumina-digital": {
-    title: "Lumina Digital",
-    subtitle: "Next-gen digital production for interactive experiences.",
-    cat: "Digital Production",
-    year: "2024",
-    client: "Lumina Co.",
-    img: "/project-2.png",
-    description: "Lumina Digital required a platform that matched their innovative 3D products. We produced a series of high-fidelity interactive assets and a cinematic production workflow that redefined their brand presence.",
-    challenge: "Integrating high-performance 3D rendering with seamless web interaction without compromising speed.",
-    results: [
-       { label: "Speed", val: "+40%" },
-       { label: "Engagement", val: "2x" },
-       { label: "Impact", val: "High" }
-    ],
-    media: [
-       { type: "video", url: "https://cdn.pixabay.com/video/2020/09/24/50172-460394348_tiny.mp4", caption: "3D Interaction Demo" },
-       { type: "image", url: "/project-2.png", caption: "Core UI Elements" },
-       { type: "image", url: "/service-production.png", caption: "Production Behind the Scenes" }
-    ]
-  }
-};
-
 export default function ProjectDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter();
   const { slug } = use(params);
-  const project = ALL_PROJECTS[slug] || ALL_PROJECTS["aether-branding"];
+  const [project, setProject] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/projects')
+      .then(res => res.json())
+      .then(data => {
+        const found = data.projects?.find((p: any) => p.slug === slug);
+        setProject(found);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Error loading project', err);
+        setLoading(false);
+      });
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-6">
+        <h1 className="text-4xl font-black">PROJECT NOT FOUND</h1>
+        <Link href="/projects" className="text-blue-500 font-bold uppercase tracking-widest hover:underline">Back to Portfolio</Link>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-black text-white font-sans selection:bg-blue-600/30 overflow-x-hidden">
