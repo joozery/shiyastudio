@@ -1,4 +1,9 @@
 {
+  "metadata": {
+    "title": "Shiya Studio | Creative Branding & Production Agency",
+    "description": "Shiya Studio is a premium creative agency specializing in Branding, Video Production, Graphic Design, and Influencer Marketing. We help brands redefine their digital presence with handcrafted logic.",
+    "keywords": "Shiya Studio, Creative Agency, Branding Agency, Production House Thailand, Video Production, Influencer Marketing, Graphic Design, Logo Design"
+  },
   "nav": {
     "home": "Home",
     "services": "Services",
@@ -12,6 +17,7 @@
     ]
   },
   "hero": {
+    "label": "AGENCY",
     "title1": "CREATIVE",
     "title2": "BRANDING",
     "title3": "AGENCY",

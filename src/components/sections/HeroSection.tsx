@@ -9,10 +9,46 @@ import { Link } from '@/navigation';
 export const HeroSection = () => {
   const t = useTranslations('hero');
   const [current, setCurrent] = useState(0);
-  const [slides, setSlides] = useState([
-    { id: 1, img: '/hero_branding_new.png', type: 'branding' },
-    { id: 2, img: '/hero_content_new.png', type: 'content' },
-    { id: 3, img: '/hero_strategy_new.png', type: 'strategy' }
+  const [slides, setSlides] = useState<any[]>([
+    { 
+      id: 1, 
+      img: '/hero_branding_new.png', 
+      type: 'branding',
+      title: 'CREATIVE BRANDING AGENCY',
+      subtitle: 'From strategy to visual DNA — we help brands redefine, not just refresh.',
+      description: 'ที่ซึ่งแบรนด์ถือกำเนิดใหม่และขอบเขตดิจิทัลของจินตนาการถูกกำหนดขึ้นใหม่ เราสร้างตัวตนที่โดดเด่น',
+      thaiTitle: 'สร้างสรรค์ แบรนด์ดัง',
+      stat1Label: 'Global Reach',
+      stat1Value: '50+ Projects',
+      stat2Label: 'Experience',
+      stat2Value: '8 Years'
+    },
+    { 
+      id: 2, 
+      img: '/hero_content_new.png', 
+      type: 'content',
+      title: 'IMMERSIVE CONTENT CREATION',
+      subtitle: 'Captivating stories told through cinematic visuals and motion design.',
+      description: 'เรื่องราวที่น่าดึงดูดใจบอกเล่าผ่านภาพที่สวยงามและมีความเป็นภาพยนตร์ระดับสากล',
+      thaiTitle: 'คอนเทนต์ ทรงพลัง',
+      stat1Label: 'Daily Views',
+      stat1Value: '1M+',
+      stat2Label: 'Engagement',
+      stat2Value: '85%'
+    },
+    { 
+      id: 3, 
+      img: '/hero_strategy_new.png', 
+      type: 'strategy',
+      title: 'STRATEGIC DIGITAL TRANSFORMATION',
+      subtitle: 'Merging artisanal craft with future-proof digital strategies.',
+      description: 'ผสานงานฝีมือประณีตเข้ากับกลยุทธ์ดิจิทัลที่รองรับอนาคต เพื่อการเติบโตที่ยั่งยืน',
+      thaiTitle: 'กลยุทธ์ ล้ำสมัย',
+      stat1Label: 'Ad Spend',
+      stat1Value: '$2M+',
+      stat2Label: 'ROI Rate',
+      stat2Value: '4.5x'
+    }
   ]);
 
   useEffect(() => {
@@ -31,132 +67,101 @@ export const HeroSection = () => {
     if (slides.length <= 1) return;
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % slides.length);
-    }, 5000);
+    }, 8000);
     return () => clearInterval(timer);
   }, [slides.length]);
 
   const nextSlide = () => setCurrent((prev) => (prev + 1) % slides.length);
   const prevSlide = () => setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
 
+  const activeSlide = slides[current] || {};
+
   return (
-    <section className="relative w-full h-[75vh] md:h-[85vh] min-h-[500px] md:min-h-[600px] flex items-center justify-center p-4 md:p-8 bg-black overflow-hidden font-sans text-white text-left">
+    <section className="relative w-full h-[75vh] md:h-[90vh] min-h-[550px] flex items-center justify-center p-2 md:p-8 bg-black overflow-hidden font-sans text-white">
       
-      {/* Main Container with rounded corners */}
-      <div className="relative w-full h-full max-w-[1600px] rounded-2xl md:rounded-3xl overflow-hidden border border-white/5 shadow-2xl">
+      {/* Main Container */}
+      <div className="relative w-full h-full max-w-[1600px] rounded-[2rem] md:rounded-[3.5rem] overflow-hidden border border-white/5 shadow-2xl bg-zinc-950">
         
-        {/* Slider Background Layer */}
+        {/* Background Layer */}
         {slides.map((slide, index) => {
+          const isActive = index === current;
           const isVideo = slide.img?.match(/\.(mp4|webm|mov|ogg)$/i);
+          const isMobileVideo = slide.mobileImg?.match(/\.(mp4|webm|mov|ogg)$/i);
           
           return (
-            <div 
-              key={slide.id}
-              className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${index === current ? 'opacity-100' : 'opacity-0'}`}
+             <div 
+              key={slide.id || index}
+              className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${isActive ? 'opacity-100' : 'opacity-0'}`}
             >
-              {isVideo ? (
-                <video
-                  src={slide.img}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  className="w-full h-full object-cover brightness-[0.85]"
-                />
-              ) : (
-                <Image 
-                  src={slide.img || '/placeholder.png'} 
-                  alt={`Slide ${index}`} 
-                  fill 
-                  className="object-cover brightness-[0.85] transition-transform duration-[5s] ease-linear"
-                  style={{ transform: index === current ? 'scale(1)' : 'scale(1.1)' }}
-                  priority={index === 0}
-                  suppressHydrationWarning
-                />
+              {/* Desktop Asset */}
+              <div className={`relative ${slide.mobileImg ? 'hidden md:block' : ''} h-full w-full`}>
+                {isVideo ? (
+                  <video src={slide.img} autoPlay muted loop playsInline className="w-full h-full object-cover scale-105" />
+                ) : (
+                  <Image src={slide.img || '/placeholder.png'} alt={slide.title || 'Slide'} fill className={`object-cover ${isActive ? 'scale-100' : 'scale-110'} transition-transform duration-[10s] ease-out`} priority={index === 0} />
+                )}
+              </div>
+
+              {/* Mobile Asset - Optimized for visibility */}
+              <div className={`relative ${slide.mobileImg ? 'block md:hidden' : 'hidden'} h-full w-full bg-black`}>
+                {isMobileVideo ? (
+                  <video src={slide.mobileImg} autoPlay muted loop playsInline className="w-full h-full object-contain" />
+                ) : (
+                  slide.mobileImg && <Image src={slide.mobileImg} alt={slide.title || 'Slide'} fill className="object-contain" />
+                )}
+              </div>
+
+              {/* Default Mobile behavior if no mobileImg: still use contain to show the full horizontal image */}
+              {!slide.mobileImg && (
+                <div className="relative block md:hidden h-full w-full bg-black">
+                  {isVideo ? (
+                    <video src={slide.img} autoPlay muted loop playsInline className="w-full h-full object-contain" />
+                  ) : (
+                    <Image src={slide.img || '/placeholder.png'} alt={slide.title || 'Slide'} fill className="object-contain" />
+                  )}
+                </div>
               )}
-              <div 
-                className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" 
-                suppressHydrationWarning
-              />
+
+              {/* Subtle Gradient for text readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40" />
             </div>
           );
         })}
 
-        {/* Content Layers (Synced with Slider if needed, but keeping core layout stable) */}
-        <div className="relative z-10 w-full h-full p-4 md:p-16 flex flex-col justify-between">
+        {/* Dynamic Content Layers - Simplified to only Progress/Nav */}
+        <div className="relative z-10 w-full h-full p-8 md:p-12 flex flex-col justify-end">
           
-          {/* Top Row */}
-          <div className="flex justify-center md:justify-end items-start pt-4">
-            {/* Huge Floating Title */}
-            <div className="text-center md:text-right max-w-full md:max-w-2xl">
-               <h1 className="text-4xl sm:text-5xl md:text-8xl lg:text-[7.5rem] font-black uppercase leading-[0.9] md:leading-[0.8] tracking-tighter text-white animate-in fade-in slide-in-from-right-10 duration-700">
-                  {t('title1')}<br />
-                  {t('title2')}<br />
-                  <span className="block text-transparent stroke-white stroke-[1px] md:stroke-[2px] opacity-30 mt-2" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.4)' }}>{t('title3')}</span>
-               </h1>
-            </div>
-          </div>
-
-          {/* Middle Row */}
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8 md:gap-12">
+          {/* Bottom Bar: Minimal Progress & Nav */}
+          <div className="flex justify-between items-center w-full max-w-[1200px] mx-auto">
              
-             {/* Left Description */}
-             <div className="max-w-xs text-center md:text-left">
-                <p className="text-[10px] sm:text-[11px] md:text-sm text-white/70 leading-relaxed font-medium transition-all duration-500">
-                  {t('desc_l')}
-                </p>
-             </div>
-
-             {/* Right Action Button */}
-             <div className="flex flex-col items-center gap-4 md:gap-6">
-                <p className="hidden md:block text-[10px] text-white/40 text-right max-w-[250px] leading-relaxed mr-12">
-                  {t('desc_r')}
-                </p>
-                <Link href="/contact" className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-24 md:h-24 rounded-full bg-blue-600 flex items-center justify-center group hover:scale-110 transition-transform shadow-[0_0_40px_rgba(37,99,235,0.4)] cursor-pointer">
-                   <ArrowUpRight className="w-6 h-6 sm:w-8 h-8 md:w-10 md:h-10 text-white group-hover:rotate-12 transition-transform" />
-                </Link>
-             </div>
-          </div>
-
-          {/* Bottom Row */}
-          <div className="flex flex-col md:flex-row justify-between items-center md:items-end gap-6 md:gap-8 pb-4">
-             
-             {/* Slider Navigation Dots & Controls */}
-             <div className="flex items-center gap-4 sm:gap-6 bg-black/30 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-3xl p-3 md:p-4">
-                <div className="flex gap-1 md:gap-2 pr-3 md:pr-4 border-r border-white/10">
-                   <button onClick={prevSlide} className="p-1.5 md:p-2 hover:bg-white/10 rounded-full transition-colors cursor-pointer">
-                      <ChevronLeft size={14} className="md:w-4 md:h-4" />
-                   </button>
-                   <button onClick={nextSlide} className="p-1.5 md:p-2 hover:bg-white/10 rounded-full transition-colors cursor-pointer">
-                      <ChevronRight size={14} className="md:w-4 md:h-4" />
-                   </button>
-                </div>
-                <div className="flex gap-2 md:gap-3">
+             {/* Progress Indicator */}
+             <div className="flex items-center gap-6 bg-black/20 backdrop-blur-xl border border-white/10 rounded-full p-1.5 pl-5 pr-1.5 min-w-[200px]">
+                <div className="flex gap-1.5">
                    {slides.map((_, index) => (
-                      <button 
+                      <div 
                         key={index}
-                        onClick={() => setCurrent(index)}
-                        className={`h-1 md:h-1.5 rounded-full transition-all duration-500 cursor-pointer ${index === current ? 'w-6 md:w-8 bg-blue-600' : 'w-1.5 md:w-2 bg-white/20'}`}
+                        className={`h-1 rounded-full transition-all duration-500 ${index === current ? 'w-8 bg-blue-500' : 'w-2 bg-white/20'}`}
                       />
                    ))}
                 </div>
+                <div className="flex-1" />
+                <div className="flex gap-1">
+                   <button onClick={prevSlide} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors text-white/60 hover:text-white">
+                      <ChevronLeft size={16} />
+                   </button>
+                   <button onClick={nextSlide} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors text-white/60 hover:text-white">
+                      <ChevronRight size={16} />
+                   </button>
+                </div>
              </div>
 
-             {/* Category Indicator (Matches Slider Content) */}
-             <div className="flex gap-1 md:gap-2 p-1 md:p-1.5 bg-black/40 backdrop-blur-md border border-white/5 rounded-full overflow-x-auto max-w-full hide-scrollbar">
-                {slides.map((slide, index) => (
-                  <button 
-                    key={slide.id || index}
-                    onClick={() => setCurrent(index)}
-                    className={`whitespace-nowrap px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-full text-[8px] sm:text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 sm:gap-2 transition-all ${index === current ? 'bg-blue-600 text-white shadow-lg' : 'text-white/40 hover:text-white'}`}
-                  >
-                    {index === current && <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-white animate-pulse" />}
-                    {(() => {
-                      // Using generic key if translation is missing
-                      try { return t(`b_${slide.type}`); } 
-                      catch { return slide.type; }
-                    })()}
-                  </button>
-                ))}
+             {/* Slide Counter */}
+             <div className="hidden md:flex items-center gap-3">
+                <span className="text-2xl font-black italic tracking-tighter opacity-20 italic">0{current + 1}</span>
+                <div className="w-8 h-[1px] bg-white/10" />
+                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40">
+                   {activeSlide.type || 'Showcase'}
+                </span>
              </div>
 
           </div>
@@ -165,9 +170,6 @@ export const HeroSection = () => {
 
       </div>
 
-      {/* Subtle corners dots (Decoration) */}
-      <div className="absolute bottom-10 left-10 w-2 h-2 rounded-full bg-blue-600/30 blur-sm" />
-      <div className="absolute bottom-10 right-10 w-2 h-2 rounded-full bg-blue-600/30 blur-sm animate-pulse" />
     </section>
   );
 };

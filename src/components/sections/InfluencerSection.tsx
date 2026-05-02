@@ -60,10 +60,22 @@ export const InfluencerSection = () => {
           0% { transform: translateY(-50%); }
           100% { transform: translateY(0); }
         }
-        .animate-scroll-up { animation: scrollUp 60s linear infinite; }
-        .animate-scroll-down { animation: scrollDown 65s linear infinite; }
-        .animate-scroll-up-fast { animation: scrollUp 55s linear infinite; }
-        .animate-scroll-down-fast { animation: scrollDown 58s linear infinite; }
+        .animate-scroll-up { 
+          animation: scrollUp 80s linear infinite; 
+          will-change: transform;
+        }
+        .animate-scroll-down { 
+          animation: scrollDown 85s linear infinite; 
+          will-change: transform;
+        }
+        .animate-scroll-up-fast { 
+          animation: scrollUp 70s linear infinite; 
+          will-change: transform;
+        }
+        .animate-scroll-down-fast { 
+          animation: scrollDown 75s linear infinite; 
+          will-change: transform;
+        }
       `}</style>
 
       {/* Heading Block */}

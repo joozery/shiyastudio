@@ -1,4 +1,9 @@
 {
+  "metadata": {
+    "title": "Shiya Studio | เอเจนซี่สร้างสรรค์แบรนด์ และโปรดักชันครบวงจร",
+    "description": "Shiya Studio เอเจนซี่ผู้เชี่ยวชาญด้านการสร้างแบรนด์ (Branding), โปรดักชันวิดีโอ (Video Production), ออกแบบกราฟิก และ Influencer Marketing เพื่อยกระดับธุรกิจของคุณสู่ระดับพรีเมียม",
+    "keywords": "Shiya Studio, เอเจนซี่โฆษณา, รับทำแบรนด์, โปรดักชันเฮาส์, Video Production Thailand, Influencer Marketing, ออกแบบโลโก้, กราฟิกดีไซน์"
+  },
   "nav": {
     "home": "หน้าแรก",
     "services": "บริการ",
@@ -12,6 +17,7 @@
     ]
   },
   "hero": {
+    "label": "AGENCY",
     "title1": "สร้างสรรค์",
     "title2": "แบรนด์ดิ้ง",
     "title3": "เอเจนซี่",
