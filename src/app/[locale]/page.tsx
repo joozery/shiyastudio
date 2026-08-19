@@ -17,11 +17,11 @@ export default function Home() {
       {/* Main Hero Section */}
       <HeroSection />
 
-      {/* Projects Showcase Section */}
-      {/* <ProjectsSection /> */}
-
       {/* Services/Grow Section */}
       <ServicesSection />
+
+      {/* Projects Showcase Section */}
+      <ProjectsSection />
 
       {/* Influencer Marketing & Commerce Section */}
       <InfluencerSection />
