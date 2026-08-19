@@ -9,57 +9,19 @@ import { Link } from '@/navigation';
 export const HeroSection = () => {
   const t = useTranslations('hero');
   const [current, setCurrent] = useState(0);
-  const [slides, setSlides] = useState<any[]>([
-    { 
-      id: 1, 
-      img: '/hero_branding_new.png', 
-      type: 'branding',
-      title: 'CREATIVE BRANDING AGENCY',
-      subtitle: 'From strategy to visual DNA — we help brands redefine, not just refresh.',
-      description: 'ที่ซึ่งแบรนด์ถือกำเนิดใหม่และขอบเขตดิจิทัลของจินตนาการถูกกำหนดขึ้นใหม่ เราสร้างตัวตนที่โดดเด่น',
-      thaiTitle: 'สร้างสรรค์ แบรนด์ดัง',
-      stat1Label: 'Global Reach',
-      stat1Value: '50+ Projects',
-      stat2Label: 'Experience',
-      stat2Value: '8 Years'
-    },
-    { 
-      id: 2, 
-      img: '/hero_content_new.png', 
-      type: 'content',
-      title: 'IMMERSIVE CONTENT CREATION',
-      subtitle: 'Captivating stories told through cinematic visuals and motion design.',
-      description: 'เรื่องราวที่น่าดึงดูดใจบอกเล่าผ่านภาพที่สวยงามและมีความเป็นภาพยนตร์ระดับสากล',
-      thaiTitle: 'คอนเทนต์ ทรงพลัง',
-      stat1Label: 'Daily Views',
-      stat1Value: '1M+',
-      stat2Label: 'Engagement',
-      stat2Value: '85%'
-    },
-    { 
-      id: 3, 
-      img: '/hero_strategy_new.png', 
-      type: 'strategy',
-      title: 'STRATEGIC DIGITAL TRANSFORMATION',
-      subtitle: 'Merging artisanal craft with future-proof digital strategies.',
-      description: 'ผสานงานฝีมือประณีตเข้ากับกลยุทธ์ดิจิทัลที่รองรับอนาคต เพื่อการเติบโตที่ยั่งยืน',
-      thaiTitle: 'กลยุทธ์ ล้ำสมัย',
-      stat1Label: 'Ad Spend',
-      stat1Value: '$2M+',
-      stat2Label: 'ROI Rate',
-      stat2Value: '4.5x'
-    }
-  ]);
+  const [slides, setSlides] = useState<any[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     fetch('/api/hero')
       .then(res => res.json())
       .then(data => {
-        if (data && data.slides && data.slides.length > 0) {
+        if (data?.slides?.length > 0) {
           setSlides(data.slides);
         }
       })
-      .catch(err => console.error('Failed to load slides', err));
+      .catch(err => console.error('Failed to load slides', err))
+      .finally(() => setIsLoaded(true));
   }, []);
 
   // Auto-play
@@ -76,9 +38,17 @@ export const HeroSection = () => {
 
   const activeSlide = slides[current] || {};
 
+  if (!isLoaded || slides.length === 0) {
+    return (
+      <section className="relative w-full h-[75vh] md:h-[90vh] min-h-[550px] flex items-center justify-center p-2 md:p-8 bg-black overflow-hidden">
+        <div className="relative w-full h-full max-w-[1600px] rounded-[2rem] md:rounded-[3.5rem] bg-zinc-950 border border-white/5" />
+      </section>
+    );
+  }
+
   return (
     <section className="relative w-full h-[75vh] md:h-[90vh] min-h-[550px] flex items-center justify-center p-2 md:p-8 bg-black overflow-hidden font-sans text-white">
-      
+
       {/* Main Container */}
       <div className="relative w-full h-full max-w-[1600px] rounded-[2rem] md:rounded-[3.5rem] overflow-hidden border border-white/5 shadow-2xl bg-zinc-950">
         

@@ -17,6 +17,15 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+function generateSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+}
+
 interface ProjectMedia {
   url: string;
   type: 'image' | 'video';
@@ -25,10 +34,12 @@ interface ProjectMedia {
 interface Project {
   id: string | number;
   title: string;
+  slug?: string;
   category: string;
   coverImage: string;
   description: string;
   media: ProjectMedia[];
+  [key: string]: any;
 }
 
 export default function ProjectsAdminPage() {
