@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Noto_Sans_Thai } from "next/font/google";
+import Script from "next/script";
 import "../globals.css";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
@@ -104,10 +105,28 @@ export default async function RootLayout({
       className={`${notoThai.variable} h-full antialiased font-sans`}
       suppressHydrationWarning
     >
-      <body 
+      <head>
+        <Script
+          id="gtm-script"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-PPCMWLP6');`,
+          }}
+        />
+      </head>
+      <body
         className="min-h-full flex flex-col bg-background text-foreground family-noto relative"
         suppressHydrationWarning
       >
+        {/* GTM noscript fallback */}
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-PPCMWLP6"
+            height="0"
+            width="0"
+            style={{ display: 'none', visibility: 'hidden' }}
+          />
+        </noscript>
         {/* Global Structured Data: Organization + WebSite + FAQ */}
         <JsonLd data={getOrganizationSchema()} />
         <JsonLd data={getWebSiteSchema()} />
