@@ -9,19 +9,57 @@ import { Link } from '@/navigation';
 export const HeroSection = () => {
   const t = useTranslations('hero');
   const [current, setCurrent] = useState(0);
-  const [slides, setSlides] = useState<any[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [slides, setSlides] = useState<any[]>([
+    { 
+      id: 1, 
+      img: '/hero_branding_new.png', 
+      type: 'branding',
+      title: 'CREATIVE BRANDING AGENCY',
+      subtitle: 'From strategy to visual DNA — we help brands redefine, not just refresh.',
+      description: 'ที่ซึ่งแบรนด์ถือกำเนิดใหม่และขอบเขตดิจิทัลของจินตนาการถูกกำหนดขึ้นใหม่ เราสร้างตัวตนที่โดดเด่น',
+      thaiTitle: 'สร้างสรรค์ แบรนด์ดัง',
+      stat1Label: 'Global Reach',
+      stat1Value: '50+ Projects',
+      stat2Label: 'Experience',
+      stat2Value: '8 Years'
+    },
+    { 
+      id: 2, 
+      img: '/hero_content_new.png', 
+      type: 'content',
+      title: 'IMMERSIVE CONTENT CREATION',
+      subtitle: 'Captivating stories told through cinematic visuals and motion design.',
+      description: 'เรื่องราวที่น่าดึงดูดใจบอกเล่าผ่านภาพที่สวยงามและมีความเป็นภาพยนตร์ระดับสากล',
+      thaiTitle: 'คอนเทนต์ ทรงพลัง',
+      stat1Label: 'Daily Views',
+      stat1Value: '1M+',
+      stat2Label: 'Engagement',
+      stat2Value: '85%'
+    },
+    { 
+      id: 3, 
+      img: '/hero_strategy_new.png', 
+      type: 'strategy',
+      title: 'STRATEGIC DIGITAL TRANSFORMATION',
+      subtitle: 'Merging artisanal craft with future-proof digital strategies.',
+      description: 'ผสานงานฝีมือประณีตเข้ากับกลยุทธ์ดิจิทัลที่รองรับอนาคต เพื่อการเติบโตที่ยั่งยืน',
+      thaiTitle: 'กลยุทธ์ ล้ำสมัย',
+      stat1Label: 'Ad Spend',
+      stat1Value: '$2M+',
+      stat2Label: 'ROI Rate',
+      stat2Value: '4.5x'
+    }
+  ]);
 
   useEffect(() => {
     fetch('/api/hero')
       .then(res => res.json())
       .then(data => {
-        if (data?.slides?.length > 0) {
+        if (data && data.slides && data.slides.length > 0) {
           setSlides(data.slides);
         }
       })
-      .catch(err => console.error('Failed to load slides', err))
-      .finally(() => setIsLoaded(true));
+      .catch(err => console.error('Failed to load slides', err));
   }, []);
 
   // Auto-play
@@ -38,33 +76,24 @@ export const HeroSection = () => {
 
   const activeSlide = slides[current] || {};
 
-  if (!isLoaded || slides.length === 0) {
-    return (
-      <section className="relative w-full h-[75vh] md:h-[90vh] min-h-[550px] flex items-center justify-center p-2 md:p-8 bg-black overflow-hidden">
-        <div className="relative w-full h-full max-w-[1600px] rounded-[2rem] md:rounded-[3.5rem] bg-zinc-950 border border-white/5" />
-      </section>
-    );
-  }
-
   return (
-    <section className="relative w-full h-[75vh] md:h-[90vh] min-h-[550px] flex items-center justify-center p-2 md:p-8 bg-black overflow-hidden font-sans text-white">
+    <section className="relative w-full md:h-[90vh] md:min-h-[550px] flex items-center justify-center p-2 md:p-8 bg-black overflow-hidden font-sans text-white">
 
-      {/* Main Container */}
-      <div className="relative w-full h-full max-w-[1600px] rounded-[2rem] md:rounded-[3.5rem] overflow-hidden border border-white/5 shadow-2xl bg-zinc-950">
+      {/* Main Container - mobile: 16:9 to fit the whole horizontal cover; desktop: fills the tall hero */}
+      <div className="relative w-full aspect-video md:aspect-auto md:h-full max-w-[1600px] rounded-[2rem] md:rounded-[3.5rem] overflow-hidden border border-white/5 shadow-2xl bg-zinc-950">
         
         {/* Background Layer */}
         {slides.map((slide, index) => {
           const isActive = index === current;
           const isVideo = slide.img?.match(/\.(mp4|webm|mov|ogg)$/i);
-          const isMobileVideo = slide.mobileImg?.match(/\.(mp4|webm|mov|ogg)$/i);
-          
+
           return (
              <div 
               key={slide.id || index}
               className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${isActive ? 'opacity-100' : 'opacity-0'}`}
             >
-              {/* Desktop Asset */}
-              <div className={`relative ${slide.mobileImg ? 'hidden md:block' : ''} h-full w-full`}>
+              {/* Desktop Asset - fills the tall hero (cropped as needed) */}
+              <div className="hidden md:block relative h-full w-full">
                 {isVideo ? (
                   <video src={slide.img} autoPlay muted loop playsInline className="w-full h-full object-cover scale-105" />
                 ) : (
@@ -72,25 +101,19 @@ export const HeroSection = () => {
                 )}
               </div>
 
-              {/* Mobile Asset - Optimized for visibility */}
-              <div className={`relative ${slide.mobileImg ? 'block md:hidden' : 'hidden'} h-full w-full bg-black`}>
-                {isMobileVideo ? (
-                  <video src={slide.mobileImg} autoPlay muted loop playsInline className="w-full h-full object-contain" />
-                ) : (
-                  slide.mobileImg && <Image src={slide.mobileImg} alt={slide.title || 'Slide'} fill className="object-contain" />
-                )}
-              </div>
-
-              {/* Default Mobile behavior if no mobileImg: still use contain to show the full horizontal image */}
-              {!slide.mobileImg && (
-                <div className="relative block md:hidden h-full w-full bg-black">
-                  {isVideo ? (
-                    <video src={slide.img} autoPlay muted loop playsInline className="w-full h-full object-contain" />
+              {/* Mobile Asset - whole horizontal cover visible (container is 16:9, no black bars).
+                  Uses a dedicated mobileImg if provided, otherwise the main landscape asset. */}
+              <div className="block md:hidden relative h-full w-full bg-black">
+                {(() => {
+                  const mSrc = slide.mobileImg || slide.img || '/placeholder.png';
+                  const mIsVideo = /\.(mp4|webm|mov|ogg)(\?|$)/i.test(mSrc);
+                  return mIsVideo ? (
+                    <video src={mSrc} autoPlay muted loop playsInline className="w-full h-full object-cover" />
                   ) : (
-                    <Image src={slide.img || '/placeholder.png'} alt={slide.title || 'Slide'} fill className="object-contain" />
-                  )}
-                </div>
-              )}
+                    <Image src={mSrc} alt={slide.title || 'Slide'} fill className="object-cover" />
+                  );
+                })()}
+              </div>
 
               {/* Subtle Gradient for text readability */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40" />
@@ -99,7 +122,7 @@ export const HeroSection = () => {
         })}
 
         {/* Dynamic Content Layers - Simplified to only Progress/Nav */}
-        <div className="relative z-10 w-full h-full p-8 md:p-12 flex flex-col justify-end">
+        <div className="relative z-10 w-full h-full p-4 md:p-12 flex flex-col justify-end">
           
           {/* Bottom Bar: Minimal Progress & Nav */}
           <div className="flex justify-between items-center w-full max-w-[1200px] mx-auto">

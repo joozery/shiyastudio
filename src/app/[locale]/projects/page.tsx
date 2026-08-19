@@ -14,11 +14,36 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [servicesMap, setServicesMap] = useState<Record<string, string>>({});
+
   React.useEffect(() => {
-    fetch('/api/projects')
-      .then(res => res.json())
-      .then(data => {
-        setProjects(data.projects || []);
+    Promise.all([
+      fetch('/api/service-works').then(res => res.json()),
+      fetch('/api/services').then(res => res.json())
+    ])
+      .then(([worksData, servicesRes]) => {
+        const dbServices = servicesRes.services || [];
+        const sMap: Record<string, string> = {};
+        dbServices.forEach((s: any) => {
+          sMap[s.slug] = s.title;
+        });
+        setServicesMap(sMap);
+
+        const allWorks: any[] = [];
+        const dataServicesMap = worksData.services || {};
+        
+        for (const [serviceSlug, works] of Object.entries(dataServicesMap)) {
+          if (Array.isArray(works)) {
+            for (const w of works) {
+              allWorks.push({
+                ...w,
+                serviceSlug // keep track of which service it belongs to
+              });
+            }
+          }
+        }
+        
+        setProjects(allWorks);
         setLoading(false);
       })
       .catch(err => {
@@ -29,7 +54,7 @@ export default function ProjectsPage() {
 
   const filteredProjects = filter === "all" 
     ? projects 
-    : projects.filter(p => (p.category || '').toLowerCase().includes(filter.toLowerCase()));
+    : projects.filter(p => p.serviceSlug === filter);
 
   if (loading) {
     return (
@@ -73,17 +98,27 @@ export default function ProjectsPage() {
 
         {/* Filter Bar */}
         <div className="flex flex-wrap items-center gap-3 mb-16 border-b border-white/5 pb-8">
-           {["all", "branding", "production", "content"].map((cat) => (
-             <button 
-               key={cat}
-               onClick={() => setFilter(cat)}
+           <button 
+               onClick={() => setFilter("all")}
                className={`px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${
-                 filter === cat 
+                 filter === "all" 
                  ? "bg-white text-black border-white" 
                  : "bg-transparent text-white/40 border-white/10 hover:border-white/40"
                }`}
              >
-               {cat === 'all' ? t('filter_all') : t(`filter_${cat}`)}
+               All Works
+           </button>
+           {Object.keys(servicesMap).map((slug) => (
+             <button 
+               key={slug}
+               onClick={() => setFilter(slug)}
+               className={`px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${
+                 filter === slug 
+                 ? "bg-white text-black border-white" 
+                 : "bg-transparent text-white/40 border-white/10 hover:border-white/40"
+               }`}
+             >
+               {servicesMap[slug]}
              </button>
            ))}
         </div>
@@ -91,8 +126,8 @@ export default function ProjectsPage() {
         {/* Full Project Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 md:gap-12">
            {filteredProjects.map((project, idx) => (
-             <Link key={project.id} href={`/projects/${project.slug}`}>
-               <ProjectCard project={project} index={idx} buttonText={t('view_details')} />
+             <Link key={project.id} href={`/services/${project.serviceSlug}/${project.id}`}>
+               <ProjectCard project={{...project, title: project.brand}} index={idx} buttonText={t('view_details')} />
              </Link>
            ))}
         </div>

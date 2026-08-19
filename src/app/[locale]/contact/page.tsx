@@ -190,12 +190,12 @@ export default function ContactPage() {
                <InfoItem 
                   icon={<Phone className="text-blue-500 w-4 h-4" />} 
                   label="Phone" 
-                  value="+66 99 123 4567" 
+                  value="+66 86 832 9299" 
                />
                <InfoItem 
                   icon={<MapPin className="text-blue-500 w-4 h-4" />} 
                   label={t('info_office')} 
-                  value="Sukhumvit Rd, Khlong Toei, Bangkok 10110" 
+                  value="23/125 ซ.นวมินทร์161 แยก1-4 ถ.นวมินทร์ แขวงนวลจันทร์ เขตบึงกุ่ม กทม. 10230" 
                />
             </div>
 

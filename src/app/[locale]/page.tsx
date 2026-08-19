@@ -21,7 +21,7 @@ export default function Home() {
       <ServicesSection />
 
       {/* Projects Showcase Section */}
-      <ProjectsSection />
+      {/* <ProjectsSection /> */}
 
       {/* Influencer Marketing & Commerce Section */}
       <InfluencerSection />
