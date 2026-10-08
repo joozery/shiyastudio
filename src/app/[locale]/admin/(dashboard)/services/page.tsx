@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Save, Plus, Trash2, GripVertical, Image as ImageIcon, ExternalLink } from 'lucide-react';
+import { Save, Plus, Trash2, Image as ImageIcon, ExternalLink } from 'lucide-react';
+import AdminLoading from '@/components/admin/AdminLoading';
 import { toast } from 'sonner';
 
 export default function ServicesAdminPage() {
@@ -85,44 +86,41 @@ export default function ServicesAdminPage() {
     }
   };
 
-  if (loading) return <div className="p-8 font-sans">Loading...</div>;
+  if (loading) return <AdminLoading/>;
 
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-8 font-sans animate-in fade-in duration-500">
-      <div className="flex justify-between items-center mb-8">
+    <div className="admin-page">
+      <div className="admin-page-header flex justify-between items-center mb-8">
          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Services Manager</h1>
-            <p className="text-sm text-slate-500 mt-1">Manage the core service offerings of Shiya Studio</p>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">จัดการบริการ</h1>
+            <p className="text-sm text-slate-500 mt-1">แก้ไขชื่อบริการ รายละเอียด และภาพหน้าปก</p>
          </div>
          <button 
            onClick={handleSave} 
            disabled={saving}
            className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 font-semibold"
          >
-            <Save size={18} /> {saving ? 'Saving...' : 'Save Changes'}
+            <Save size={18} /> {saving ? 'กำลังบันทึก…' : 'บันทึกการเปลี่ยนแปลง'}
          </button>
       </div>
 
       <div className="grid grid-cols-1 gap-4">
         {services.map((service, index) => (
           <div key={index} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row gap-6 items-start transition-all hover:shadow-md">
-            <div className="pt-2 text-slate-300 cursor-grab hover:text-blue-500 hidden md:block">
-               <GripVertical size={24} />
-            </div>
             
             <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-12 gap-6">
                <div className="md:col-span-3">
-                  <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Preview & Upload</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">ภาพตัวอย่าง / อัปโหลด</label>
                   <div className="relative aspect-video rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shadow-inner group">
                      {service.image ? (
-                        <img src={service.image} alt={service.title} className="w-full h-full object-cover" />
+                        <img loading="lazy" decoding="async" src={service.image} alt={service.title} className="w-full h-full object-cover" />
                      ) : (
                         <div className="w-full h-full flex items-center justify-center text-slate-300">
                            <ImageIcon size={32} />
                         </div>
                      )}
                      <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer text-white text-xs font-bold uppercase">
-                        Change Image
+                        เปลี่ยนภาพ
                         <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files && handleFileUpload(index, e.target.files[0])} />
                      </label>
                   </div>
@@ -130,7 +128,7 @@ export default function ServicesAdminPage() {
                      type="text" 
                      value={service.image} 
                      onChange={(e) => handleUpdateService(index, 'image', e.target.value)}
-                     className="mt-2 w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-[10px] focus:outline-none text-slate-400"
+                     className="mt-2 w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs focus:outline-none text-slate-400"
                      placeholder="Image URL..."
                   />
                </div>
@@ -138,7 +136,7 @@ export default function ServicesAdminPage() {
                <div className="md:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-4">
                      <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">Category Tag</label>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">หมวดหมู่</label>
                         <input 
                            type="text" 
                            value={service.category} 
@@ -147,7 +145,7 @@ export default function ServicesAdminPage() {
                         />
                      </div>
                      <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">Display Title</label>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">ชื่อบริการ</label>
                         <input 
                            type="text" 
                            value={service.title} 

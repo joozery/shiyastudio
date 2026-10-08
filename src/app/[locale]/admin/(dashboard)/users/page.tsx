@@ -1,4 +1,5 @@
 "use client";
+import {useConfirm} from '@/components/admin/ConfirmDialog';
 
 import React, { useState, useEffect } from 'react';
 import { 
@@ -27,6 +28,7 @@ interface AdminUser {
 }
 
 export default function AdminManagementPage() {
+ const confirmAction=useConfirm();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -46,6 +48,7 @@ export default function AdminManagementPage() {
     setLoading(true);
     try {
       const res = await fetch('/api/users');
+      if(!res.ok)throw new Error('โหลดข้อมูลไม่สำเร็จ');
       const data = await res.json();
       setUsers(data);
     } catch (e) {
@@ -74,7 +77,7 @@ export default function AdminManagementPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to remove this admin?')) {
+    if (await confirmAction('ต้องการลบผู้ดูแลคนนี้ใช่ไหม?')) {
       try {
         const res = await fetch(`/api/users?id=${id}`, { method: 'DELETE' });
         if (res.ok) {
@@ -87,19 +90,21 @@ export default function AdminManagementPage() {
     }
   };
 
+  const visibleUsers=users.filter(user=>[user.name,user.email].join(' ').toLowerCase().includes(searchQuery.trim().toLowerCase()));
+
   return (
-    <div className="max-w-6xl mx-auto p-4 md:p-8 font-sans">
+    <div className="admin-page">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+      <div className="admin-page-header flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
          <div>
-            <h1 className="text-xl font-bold tracking-tight text-slate-900">Admin Management</h1>
-            <p className="text-xs text-slate-500 mt-1">Manage system administrators and access permissions</p>
+            <h1 className="text-xl font-bold tracking-tight text-slate-900">จัดการแอดมิน</h1>
+            <p className="text-xs text-slate-500 mt-1">จัดการบัญชีผู้ดูแลและสิทธิ์การใช้งาน</p>
          </div>
          <button 
            onClick={() => setIsModalOpen(true)}
            className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 font-bold text-xs"
          >
-            <UserPlus size={16} /> Add New Admin
+            <UserPlus size={16} /> เพิ่มแอดมิน
          </button>
       </div>
 
@@ -110,8 +115,8 @@ export default function AdminManagementPage() {
                <Shield size={20} />
             </div>
             <div>
-               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Admins</p>
-               <p className="text-xl font-black text-slate-900">{users.length}</p>
+               <p className="text-xs font-bold text-slate-400 uppercase tracking-normal">แอดมินทั้งหมด</p>
+               <p className="text-xl font-semibold text-slate-900">{users.length}</p>
             </div>
          </div>
          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
@@ -119,8 +124,8 @@ export default function AdminManagementPage() {
                <CheckCircle2 size={20} />
             </div>
             <div>
-               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Now</p>
-               <p className="text-xl font-black text-slate-900">2</p>
+               <p className="text-xs font-bold text-slate-400 uppercase tracking-normal">บัญชีที่เปิดใช้งาน</p>
+               <p className="text-xl font-semibold text-slate-900">{users.filter(user=>user.status==='active').length}</p>
             </div>
          </div>
          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
@@ -128,8 +133,8 @@ export default function AdminManagementPage() {
                <Clock size={20} />
             </div>
             <div>
-               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pending Access</p>
-               <p className="text-xl font-black text-slate-900">0</p>
+               <p className="text-xs font-bold text-slate-400 uppercase tracking-normal">บัญชีที่ปิดใช้งาน</p>
+               <p className="text-xl font-semibold text-slate-900">{users.filter(user=>user.status==='inactive').length}</p>
             </div>
          </div>
       </div>
@@ -141,7 +146,7 @@ export default function AdminManagementPage() {
                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                <input 
                   type="text" 
-                  placeholder="Search by name or email..."
+                  placeholder="ค้นหาชื่อหรืออีเมล…"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:outline-none focus:border-blue-500/50 transition-all"
@@ -154,33 +159,32 @@ export default function AdminManagementPage() {
             <table className="w-full text-left">
                <thead>
                   <tr className="bg-slate-50/50 border-b border-slate-50">
-                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Administrator</th>
-                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Role</th>
-                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Last Active</th>
-                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                     <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-normal">ผู้ดูแล</th>
+                     <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-normal">Role</th>
+                     <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-normal">ใช้งานล่าสุด</th>
+                     <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-normal">Status</th>
                      <th className="px-6 py-4 text-right"></th>
                   </tr>
                </thead>
-               <tbody className="divide-y divide-slate-50">
-                  {users.map((user, index) => (
+               <tbody className="divide-y divide-slate-50">{loading&&<tr><td colSpan={5} className="p-8 text-center text-slate-400" role="status">กำลังโหลดแอดมิน…</td></tr>}{!loading&&!visibleUsers.length&&<tr><td colSpan={5} className="p-8 text-center text-slate-400">{searchQuery?'ไม่พบแอดมินที่ค้นหา':'ยังไม่มีรายการแอดมิน'}</td></tr>}
+                  {visibleUsers.map((user, index) => (
                      <tr key={user._id || user.id || index} className="hover:bg-slate-50/30 transition-colors group">
                         <td className="px-6 py-4">
                            <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 overflow-hidden shrink-0">
-                                 <img 
-                                    src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} 
+                                 <img loading="lazy" decoding="async" src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
                                     alt={user.name} 
                                     className="w-full h-full object-cover"
                                   />
                               </div>
                               <div>
                                  <p className="text-sm font-bold text-slate-900">{user.name}</p>
-                                 <p className="text-[10px] text-slate-500">{user.email}</p>
+                                 <p className="text-xs text-slate-500">{user.email}</p>
                               </div>
                            </div>
                         </td>
                         <td className="px-6 py-4">
-                           <span className={`px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-widest border ${
+                           <span className={`px-2.5 py-1 rounded-md text-xs font-semibold uppercase tracking-normal border ${
                               user.role === 'Super Admin' ? 'bg-purple-50 text-purple-600 border-purple-100' : 'bg-blue-50 text-blue-600 border-blue-100'
                            }`}>
                               {user.role}
@@ -192,7 +196,7 @@ export default function AdminManagementPage() {
                         <td className="px-6 py-4">
                            <div className="flex items-center gap-2">
                               <div className={`w-1.5 h-1.5 rounded-full ${user.status === 'active' ? 'bg-emerald-500' : 'bg-slate-300'}`} />
-                              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-600">{user.status}</span>
+                              <span className="text-xs font-bold uppercase tracking-normal text-slate-600">{user.status}</span>
                            </div>
                         </td>
                         <td className="px-6 py-4 text-right">
@@ -213,12 +217,12 @@ export default function AdminManagementPage() {
           <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
           <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-              <h3 className="font-bold text-slate-900">Add New Administrator</h3>
+              <h3 className="font-bold text-slate-900">เพิ่มแอดมินistrator</h3>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600"><XCircle size={20} /></button>
             </div>
             <form onSubmit={handleCreateAdmin} className="p-6 space-y-4">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
+                <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">Full Name</label>
                 <input 
                   type="text" 
                   value={formData.name}
@@ -229,7 +233,7 @@ export default function AdminManagementPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
+                <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">Email Address</label>
                 <input 
                   type="email" 
                   value={formData.email}
@@ -240,7 +244,7 @@ export default function AdminManagementPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
+                <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">Password</label>
                 <input 
                   type="password" 
                   value={formData.password}
@@ -251,7 +255,7 @@ export default function AdminManagementPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Role Permission</label>
+                <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">Role Permission</label>
                 <select 
                   value={formData.role}
                   onChange={(e) => setFormData({...formData, role: e.target.value as any})}
@@ -266,7 +270,7 @@ export default function AdminManagementPage() {
                 type="submit"
                 className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all mt-4"
               >
-                Create Administrator
+                Create ผู้ดูแล
               </button>
             </form>
           </div>

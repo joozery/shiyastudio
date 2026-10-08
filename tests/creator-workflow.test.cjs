@@ -2,13 +2,14 @@ const test=require('node:test');const assert=require('node:assert/strict');const
 function compile(path,dependencies={}){const context={exports:{},require:name=>dependencies[name]||require(name),Request,Response,File,FormData,Buffer,console,URL,Date};vm.runInNewContext(ts.transpileModule(fs.readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,context);return context.exports}
 const model=compile('src/lib/creators.ts');
 const NextResponse=class extends Response{static json(body,init){return new this(JSON.stringify(body),{...init,headers:{'Content-Type':'application/json',...init?.headers}})}};
-function matches(row,query){return Object.entries(query).every(([key,value])=>value&&typeof value==='object'&&!(value instanceof ObjectId)?('$in'in value?value.$in.includes(row[key]):'$gt'in value?row[key]>value.$gt:false):String(row[key])===String(value))}
+function matches(row,query){return Object.entries(query).every(([key,value])=>{const actual=key.split('.').reduce((object,part)=>object?.[part],row);return value&&typeof value==='object'&&!(value instanceof ObjectId)?('$in'in value?value.$in.includes(actual):'$gt'in value?actual>value.$gt:'$exists'in value?(actual!==undefined)===value.$exists:'$ne'in value?actual!==value.$ne:false):String(actual)===String(value)})}
 function database(){const records={};return {records,collection(name){const rows=records[name]??=[];return {async insertOne(row){rows.push(row);return{insertedId:row.id}},async findOne(query){const row=rows.find(row=>matches(row,query));return row?{...row}:null},async countDocuments(query){return rows.filter(row=>matches(row,query)).length},async findOneAndUpdate(query,update){let row=rows.find(row=>matches(row,query));if(!row){row={...query};rows.push(row)}Object.assign(row,update.$set);for(const[key,value]of Object.entries(update.$inc||{}))row[key]=(row[key]||0)+value;return row},async updateOne(query,update,options){let row=rows.find(row=>matches(row,query));if(!row&&options?.upsert){row={...query};rows.push(row)}if(row)Object.assign(row,update.$set);return{matchedCount:row?1:0}},find(query){const found=rows.filter(row=>matches(row,query));return {sort(){return this},limit(){return this},async toArray(){return found}}}}}}}
 test('application -> approval -> selection -> hidden, with private files and finance isolated',async()=>{
  const db=database();const files=new Map();let staff=false,finance=false;
  class GridFSBucket{constructor(db,options){this.prefix=options.bucketName+':'}openUploadStream(name,options){const stream=new EventEmitter();stream.id=new ObjectId();stream.end=buffer=>{files.set(this.prefix+String(stream.id),{_id:stream.id,metadata:options.metadata,buffer});stream.emit('finish')};return stream}async delete(id){files.delete(this.prefix+String(id))}find(query){const prefix=this.prefix;return {async next(){return files.get(prefix+String(query._id))}}}openDownloadStream(id){const prefix=this.prefix;return (async function*(){yield files.get(prefix+String(id)).buffer})()}}
  const auth={requireAdmin:async()=>staff?null:NextResponse.json({error:'Unauthorized'},{status:401}),getAdminSession:async()=>staff?{email:'staff@example.test'}:null,canManageCreatorFinance:async()=>staff&&finance,sameOrigin:()=>true};
  const dependencies={'next/server':{NextResponse},'@/lib/mongodb':{default:Promise.resolve({db:()=>db})},'@/lib/creators':model,'@/lib/auth':auth,mongodb:{ObjectId,GridFSBucket}};
+ dependencies['@/lib/creator-application']=compile('src/lib/creator-application.ts',dependencies);
  const apply=compile('src/app/api/creators/apply/route.ts',dependencies),admin=compile('src/app/api/creators/admin/route.ts',dependencies),media=compile('src/app/api/creators/media/[id]/route.ts',dependencies),financial=compile('src/app/api/creators/finance/route.ts',dependencies),selections=compile('src/app/api/creators/selections/route.ts',dependencies);
  const identity=compile('src/app/api/creators/identity/route.ts',dependencies);
  const json=(body,method='POST')=>new Request('http://localhost:3001/test',{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
@@ -38,4 +39,23 @@ test('application -> approval -> selection -> hidden, with private files and fin
  assert.equal((await selections.POST(json({name:'Client',email:'client@example.test',creatorIds:[creator.id]}))).status,201);assert.equal(db.records.creator_selections[0].creators[0].author,'Test Creator');
  assert.equal((await selections.GET()).status,401);
  staff=true;assert.equal((await admin.PATCH(json({id:creator.id,status:'hidden'},'PATCH'))).status,200);staff=false;assert.equal((await fileRequest(creator.photoId)).status,404);assert.equal((await selections.POST(json({name:'Client',email:'client@example.test',creatorIds:[creator.id]}))).status,409);
+ assert.equal((await admin.DELETE(json({id:creator.id},'DELETE'))).status,401);
+ staff=true;const detail=await admin.GET(new Request(`http://localhost:3001/api/creators/admin?id=${creator.id}`));assert.equal(detail.status,200);assert.equal((await detail.json()).profile.personal.fullName,payload.fullName);auth.sameOrigin=()=>false;assert.equal((await admin.DELETE(json({id:creator.id},'DELETE'))).status,403);auth.sameOrigin=()=>true;
+ assert.equal((await admin.DELETE(json({id:creator.id},'DELETE'))).status,200);
+ assert.equal((await admin.GET()).status,200);assert.equal((await (await admin.GET()).json()).profiles.length,0);
+ assert.equal((await admin.PATCH(json({id:creator.id,status:'approved'},'PATCH'))).status,404);
+ assert.equal((await admin.DELETE(json({id:creator.id},'DELETE'))).status,404);assert.equal((await admin.GET(new Request(`http://localhost:3001/api/creators/admin?id=${creator.id}`))).status,404);
+ assert.equal(db.records.creators.length,1,'deleted profile history remains available internally');
+
+ const staffApply=compile('src/app/api/creators/admin/apply/route.ts',dependencies);
+ const staffRequest=()=>new Request('http://localhost:3001/api/creators/admin/apply',{method:'POST',body:form()});
+ staff=false;assert.equal((await staffApply.POST(staffRequest())).status,401);assert.equal(db.records.creators.length,1);
+ staff=true;auth.sameOrigin=()=>false;assert.equal((await staffApply.POST(staffRequest())).status,403);assert.equal(db.records.creators.length,1);auth.sameOrigin=()=>true;
+ const beforeLimit=db.records.creator_submission_limits[0].count;
+ assert.equal((await staffApply.POST(staffRequest())).status,201);const added=db.records.creators[1];
+ assert.equal(added.status,'pending');assert.equal(added.createdBy,'staff@example.test');assert.equal(added.creationSource,'admin');assert.match(added.consent.version,/staff-recorded/);
+ assert.equal(db.records.creator_finance[1].idCardUploadedBy,'staff@example.test');assert.equal(db.records.creator_finance[1].accountNumber,payload.accountNumber);
+ assert.equal(db.records.creator_submission_limits[0].count,beforeLimit,'staff saves do not consume the public application rate limit');
+ assert.equal(JSON.stringify(model.publicCreator(added)).includes('staff@example.test'),false);
+
 });

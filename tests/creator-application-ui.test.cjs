@@ -15,4 +15,8 @@ test('six-step application retains profile data, validates required sections, re
  await next();assert.equal(states[0],5);assert.match(text(),/Test author/);assert.match(text(),/TikTok/);assert.match(text(),/Terms/);assert.match(text(),/Privacy/);
  find('button',p=>p.onClick&&flatten(p.children).includes('บันทึกแบบร่าง')).props.onClick();const saved=JSON.parse(storage.get('shiya-application-draft'));assert.equal(saved.values['rate-post'],'5000');assert.equal(saved.selected[0],'Beauty');assert.equal(Object.hasOwn(saved,'photo'),false);for(const key of ['bank','accountName','accountNumber','taxId','billingAddress'])assert.equal(Object.hasOwn(saved.values,key),false,key);assert.equal(Object.hasOwn(saved,'idCard'),false);
  find('button',p=>flatten(p.children).includes('ย้อนกลับ')).props.onClick();assert.equal(states[0],4);
+ props.admin=true;assert.equal(render().type,'div');assert.equal(text().includes('BECOME A SHIYA CREATOR'),false);
+ find('button',p=>p.onClick&&flatten(p.children).includes('บันทึกแบบร่าง')).props.onClick();assert.ok(storage.has('shiya-admin-application-draft'));assert.ok(storage.has('shiya-application-draft'));
+ find('button',p=>p['aria-current']==='step').props.onClick();
+
 });

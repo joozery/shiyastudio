@@ -6,28 +6,31 @@ export async function GET() {
     const client = await clientPromise;
     const db = client.db('shiyastudio');
 
-    // Run all queries in parallel for performance
-    const [
-      heroSettings,
-      servicesSettings,
-      projectsSettings,
-      clientsSettings,
-      influencerSettings,
-    ] = await Promise.all([
-      db.collection('settings').findOne({ type: 'hero' }),
-      db.collection('settings').findOne({ type: 'services' }),
-      db.collection('settings').findOne({ type: 'projects' }),
-      db.collection('settings').findOne({ type: 'clients' }),
-      db.collection('settings').findOne({ type: 'influencer' }),
-    ]);
+    // Count arrays in MongoDB instead of transferring full galleries to the app server.
+    const settings = await db.collection('settings').aggregate([
+      { $match: { type: { $in: ['hero', 'services', 'projects', 'clients', 'influencer'] } } },
+      { $project: { _id: 0, type: 1, updatedAt: 1,
+        slides: { $cond: [{ $isArray: '$slides' }, { $size: '$slides' }, 3] },
+        services: { $cond: [{ $isArray: '$services' }, { $size: '$services' }, 5] },
+        projects: { $cond: [{ $isArray: '$projects' }, { $size: '$projects' }, 3] },
+        clients: { $cond: [{ $isArray: '$clients' }, { $size: '$clients' }, 8] },
+        items: { $cond: [{ $isArray: '$items' }, { $size: '$items' }, 6] },
+        categories: { $cond: [{ $isArray: '$categories' }, { $size: '$categories' }, 5] }
+      } }
+    ]).toArray();
+    const heroSettings = settings.find(item => item.type === 'hero');
+    const servicesSettings = settings.find(item => item.type === 'services');
+    const projectsSettings = settings.find(item => item.type === 'projects');
+    const clientsSettings = settings.find(item => item.type === 'clients');
+    const influencerSettings = settings.find(item => item.type === 'influencer');
 
     // Count items per section
-    const heroSlides = heroSettings?.slides?.length ?? 3;
-    const servicesCount = servicesSettings?.services?.length ?? 5;
-    const projectsCount = projectsSettings?.projects?.length ?? 3;
-    const clientsCount = clientsSettings?.clients?.length ?? 8;
-    const influencerItems = influencerSettings?.items?.length ?? 6;
-    const influencerCategories = influencerSettings?.categories?.length ?? 5;
+    const heroSlides = heroSettings?.slides ?? 3;
+    const servicesCount = servicesSettings?.services ?? 5;
+    const projectsCount = projectsSettings?.projects ?? 3;
+    const clientsCount = clientsSettings?.clients ?? 8;
+    const influencerItems = influencerSettings?.items ?? 6;
+    const influencerCategories = influencerSettings?.categories ?? 5;
 
     // Last updated times
     const lastUpdated = {

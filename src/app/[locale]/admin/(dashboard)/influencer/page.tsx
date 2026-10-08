@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Save, Plus, Trash2, GripVertical, Image as ImageIcon, Video, Link as LinkIcon, Film, Tag, FolderOpen, Check } from 'lucide-react';
+import AdminLoading from '@/components/admin/AdminLoading';
 import { toast } from 'sonner';
 
 const PLATFORMS = ['TikTok', 'Instagram', 'YouTube', 'Facebook', 'Other'];
@@ -108,16 +109,12 @@ export default function InfluencerAdminPage() {
     }
   };
 
-  if (loading) return (
-    <div className="p-8 font-sans flex items-center justify-center h-64">
-      <div className="w-8 h-8 rounded-full border-2 border-blue-600 border-t-transparent animate-spin" />
-    </div>
-  );
+  if (loading) return <AdminLoading/>;
 
   return (
-    <div className="max-w-6xl mx-auto p-4 md:p-8 font-sans animate-in fade-in duration-500">
+    <div className="admin-page">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <div className="admin-page-header flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
          <div>
             <h1 className="text-2xl font-bold tracking-tight text-slate-900">Influencer & Commerce</h1>
             <p className="text-sm text-slate-500 mt-1">จัดการวิดีโอ รูปภาพ หมวดหมู่ และ Creator ใน Section นี้</p>
@@ -136,7 +133,7 @@ export default function InfluencerAdminPage() {
              disabled={saving}
              className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 font-semibold text-sm"
            >
-              <Save size={16} /> {saving ? 'Saving...' : 'Save All'}
+              <Save size={16} /> {saving ? 'กำลังบันทึก…' : 'Save All'}
            </button>
          </div>
       </div>
@@ -150,7 +147,7 @@ export default function InfluencerAdminPage() {
 
           <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-100 bg-slate-50">
-              <p className="text-xs font-black uppercase tracking-widest text-slate-400">Category List</p>
+              <p className="text-xs font-semibold uppercase tracking-normal text-slate-400">Category List</p>
             </div>
             <div className="p-6 space-y-3">
               {categories.map((cat, index) => (
@@ -159,7 +156,7 @@ export default function InfluencerAdminPage() {
                     <GripVertical size={18} />
                   </div>
                   <div className="flex-1 flex items-center gap-3">
-                    <span className="text-xs font-black text-slate-300 w-6 text-center">{index + 1}</span>
+                    <span className="text-xs font-semibold text-slate-300 w-6 text-center">{index + 1}</span>
                     <input 
                       type="text" 
                       value={cat} 
@@ -186,10 +183,10 @@ export default function InfluencerAdminPage() {
           {/* Preview */}
           {categories.length > 0 && (
             <div className="bg-slate-900 rounded-2xl p-6">
-              <p className="text-xs font-black uppercase tracking-widest text-white/30 mb-4">Preview on Website</p>
+              <p className="text-xs font-semibold uppercase tracking-normal text-white/30 mb-4">Preview on Website</p>
               <div className="flex flex-wrap gap-3">
                 {categories.map((cat, idx) => (
-                  <span key={idx} className={`px-5 py-2 rounded-full border text-[9px] font-bold uppercase tracking-widest transition-all ${idx === 0 ? 'bg-white text-black border-white' : 'bg-transparent text-white/40 border-white/10'}`}>
+                  <span key={idx} className={`px-5 py-2 rounded-full border text-xs font-bold uppercase tracking-normal transition-all ${idx === 0 ? 'bg-white text-black border-white' : 'bg-transparent text-white/40 border-white/10'}`}>
                     {cat}
                   </span>
                 ))}
@@ -264,6 +261,7 @@ function MediaItemCard({ item, index, categories, onUpdate, onRemove, onFileUplo
                 ref={videoRef}
                 src={item.videoUrl}
                 className="w-full h-full object-cover"
+                preload="none"
                 muted
                 loop
                 playsInline
@@ -274,17 +272,17 @@ function MediaItemCard({ item, index, categories, onUpdate, onRemove, onFileUplo
             ) : (
               <div className="flex flex-col items-center gap-2 text-white/20">
                 <Film size={28} />
-                <span className="text-[9px] font-bold uppercase tracking-wide">ยังไม่มีวิดีโอ</span>
-                <span className="text-[8px] text-white/10">Hover เพื่อเล่นอัตโนมัติ</span>
+                <span className="text-xs font-bold uppercase tracking-wide">ยังไม่มีวิดีโอ</span>
+                <span className="text-xs text-white/10">Hover เพื่อเล่นอัตโนมัติ</span>
               </div>
             )}
           </div>
           <div className="flex gap-2 mt-2">
-            <label className="flex-1 flex items-center justify-center gap-1.5 py-1.5 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-500 hover:bg-blue-50 hover:text-blue-600 cursor-pointer transition-all">
+            <label className="flex-1 flex items-center justify-center gap-1.5 py-1.5 bg-slate-100 rounded-lg text-xs font-bold text-slate-500 hover:bg-blue-50 hover:text-blue-600 cursor-pointer transition-all">
               <Video size={12} /> อัปโหลดวิดีโอ
               <input type="file" className="hidden" accept="video/*" onChange={(e) => e.target.files && onFileUpload(index, e.target.files[0], 'videoUrl')} />
             </label>
-            <button onClick={() => setShowVideoInput(!showVideoInput)} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-all">
+            <button onClick={() => setShowVideoInput(!showVideoInput)} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 bg-slate-100 rounded-lg text-xs font-bold text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-all">
               <LinkIcon size={12} /> URL
             </button>
           </div>
@@ -294,7 +292,7 @@ function MediaItemCard({ item, index, categories, onUpdate, onRemove, onFileUplo
       {/* Video URL Input */}
       {showVideoInput && (
         <div>
-          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Video URL</label>
+          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Video URL</label>
           <input
             type="text"
             value={item.videoUrl}
@@ -308,7 +306,7 @@ function MediaItemCard({ item, index, categories, onUpdate, onRemove, onFileUplo
       {/* Info Fields */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Author / Handle</label>
+          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Author / Handle</label>
           <input
             type="text"
             value={item.author}
@@ -318,7 +316,7 @@ function MediaItemCard({ item, index, categories, onUpdate, onRemove, onFileUplo
           />
         </div>
         <div>
-          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Platform</label>
+          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Platform</label>
           <select
             value={item.platform || 'TikTok'}
             onChange={(e) => onUpdate(index, 'platform', e.target.value)}
@@ -328,7 +326,7 @@ function MediaItemCard({ item, index, categories, onUpdate, onRemove, onFileUplo
           </select>
         </div>
         <div>
-          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">หมวดหมู่ (Category)</label>
+          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">หมวดหมู่ (Category)</label>
           <select
             value={item.category || ''}
             onChange={(e) => onUpdate(index, 'category', e.target.value)}
@@ -339,7 +337,7 @@ function MediaItemCard({ item, index, categories, onUpdate, onRemove, onFileUplo
           </select>
         </div>
         <div>
-          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Grid Size</label>
+          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Grid Size</label>
           <select
             value={item.size}
             onChange={(e) => onUpdate(index, 'size', e.target.value)}
@@ -354,8 +352,8 @@ function MediaItemCard({ item, index, categories, onUpdate, onRemove, onFileUplo
 
       {/* Status Badges */}
       <div className="flex gap-2 pt-1">
-        {hasVideo && <span className="flex items-center gap-1 text-[9px] font-bold bg-blue-50 text-blue-600 border border-blue-100 px-2 py-1 rounded-full"><Film size={10} /> Video</span>}
-        {item.category && <span className="flex items-center gap-1 text-[9px] font-bold bg-violet-50 text-violet-600 border border-violet-100 px-2 py-1 rounded-full truncate max-w-[120px]"><Tag size={10} />{item.category}</span>}
+        {hasVideo && <span className="flex items-center gap-1 text-xs font-bold bg-blue-50 text-blue-600 border border-blue-100 px-2 py-1 rounded-full"><Film size={10} /> Video</span>}
+        {item.category && <span className="flex items-center gap-1 text-xs font-bold bg-violet-50 text-violet-600 border border-violet-100 px-2 py-1 rounded-full truncate max-w-[120px]"><Tag size={10} />{item.category}</span>}
       </div>
     </div>
   );

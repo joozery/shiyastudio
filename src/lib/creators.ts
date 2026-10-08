@@ -1,3 +1,4 @@
+import type {CreatorWork,CreatorWorkStats,CreatorBlacklist} from './creator-work';
 import { ObjectId } from 'mongodb';
 export const defaultCategories = ['Beauty', 'Fashion', 'Lifestyle', 'Food', 'Travel', 'Tech', 'Health', 'Pet', 'Business'];
 export const defaultGenders = ['หญิง', 'ชาย', 'ไม่ระบุ'];
@@ -35,6 +36,11 @@ export type CreatorRecord = {
     };
     status: 'pending' | 'approved' | 'rejected' | 'hidden';
     featured: boolean;
+    workRecords?:CreatorWork[];
+    workStats?:CreatorWorkStats;
+    blacklist?:CreatorBlacklist;
+    creationSource?:'admin';
+    createdBy?:string;
     createdAt: Date;
     updatedAt?: Date;
     consent: {
@@ -57,3 +63,11 @@ catch {
     return false;
 } };
 export const validEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+// Only fields used to display, filter, and select rows in the admin table.
+export type CreatorListRow=Pick<CreatorRecord,'id'|'author'|'img'|'photoId'|'categories'|'socials'|'status'|'featured'|'workStats'>&{
+ createdAt:string;
+ personal:Pick<CreatorRecord['personal'],'fullName'|'province'>;
+ contact:Pick<CreatorRecord['contact'],'email'>;
+ blacklist?:Pick<CreatorBlacklist,'active'>;
+};

@@ -1,10 +1,29 @@
 import { NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
 import clientPromise from '@/lib/mongodb';
-import { requireAdmin, canManageCreatorFinance, sameOrigin } from '@/lib/auth';
+import { requireAdmin, getAdminSession, sameOrigin } from '@/lib/auth';
 import { CreatorRecord, text, validUrl } from '@/lib/creators';
-export async function GET() { const denied = await requireAdmin(); if (denied)
-    return denied; const db = (await clientPromise).db('shiyastudio'); const [profiles, canFinance] = await Promise.all([db.collection<CreatorRecord>('creators').find({}).sort({ createdAt: -1 }).toArray(), canManageCreatorFinance()]); return NextResponse.json({ profiles, canFinance }, { headers: { 'Cache-Control': 'no-store' } }); }
+export async function GET(req?:Request) {
+    const session=await getAdminSession();
+    if(!session)return NextResponse.json({error:'กรุณาเข้าสู่ระบบอีกครั้ง'},{status:401});
+    try {
+        const db=(await clientPromise).db('shiyastudio');
+        const params=req?new URL(req.url).searchParams:null;
+        const id=text(params?.get('id'),100);
+        if(id){
+            const profile=await db.collection<CreatorRecord>('creators').findOne({id,deletedAt:{$exists:false}},{projection:{workRecords:0,blacklistLog:0,'consent.termsText':0,'consent.privacyText':0}});
+            return NextResponse.json(profile?{profile}:{error:'ไม่พบโปรไฟล์'},{status:profile?200:404,headers:{'Cache-Control':'no-store'}});
+        }
+        const list=params?.get('view')==='list';
+        const projection=list?{_id:0,id:1,author:1,img:1,photoId:1,categories:1,socials:1,status:1,featured:1,workStats:1,createdAt:1,'personal.fullName':1,'personal.province':1,'contact.email':1,'blacklist.active':1}:{workRecords:0,blacklistLog:0,'consent.termsText':0,'consent.privacyText':0};
+
+        const [profiles,settings]=await Promise.all([
+            db.collection<CreatorRecord>('creators').find({deletedAt:{$exists:false}},{projection}).sort({createdAt:-1}).toArray(),
+            db.collection('settings').findOne({type:'influencer'},{projection:{_id:0,profileCategories:1,profileGenders:1}})
+        ]);
+        return NextResponse.json({profiles,canFinance:session.role==='Super Admin',profileCategories:settings?.profileCategories,profileGenders:settings?.profileGenders},{headers:{'Cache-Control':'no-store'}});
+    }catch{return NextResponse.json({error:'โหลดรายชื่อไม่สำเร็จ'},{status:500})}
+}
 export async function POST(req: Request) { const denied = await requireAdmin(); if (denied)
     return denied; if (!sameOrigin(req))
     return NextResponse.json({ error: 'Invalid origin' }, { status: 403 }); const profile: CreatorRecord = { id: randomUUID(), author: 'โปรไฟล์ใหม่', img: '', bio: '', categories: [], gender: '', socials: [], portfolio: [], rates: {}, personal: { fullName: '', nickname: '', birthday: '', province: '' }, contact: { phone: '', email: '', line: '' }, status: 'pending', featured: false, createdAt: new Date(), consent: { terms: false, privacy: false, version: 'staff-created', at: new Date() } }; await (await clientPromise).db('shiyastudio').collection<CreatorRecord>('creators').insertOne(profile); return NextResponse.json({ profile }, { status: 201 }); }
@@ -44,15 +63,19 @@ export async function PATCH(req: Request) { const denied = await requireAdmin();
     if (data.contact)
         update.contact = { phone: text(data.contact.phone, 30), email: text(data.contact.email, 150), line: text(data.contact.line, 100) };
     const collection = (await clientPromise).db('shiyastudio').collection<CreatorRecord>('creators');
-    const current = await collection.findOne({ id });
+    const current = await collection.findOne({ id, deletedAt:{$exists:false} });
     if (!current)
         return NextResponse.json({ error: 'ไม่พบโปรไฟล์' }, { status: 404 });
     const merged = { ...current, ...update };
+    if (merged.status === 'approved' && current.blacklist?.active) return NextResponse.json({error:'โปรไฟล์นี้อยู่ใน Blacklist กรุณาตรวจสอบและยกเลิกสถานะก่อนเผยแพร่'}, {status:409});
     if (merged.status === 'approved' && (!merged.author.trim() || !merged.categories.length || !merged.socials.some(s => s.url) || !merged.photoId && !merged.img))
         return NextResponse.json({ error: 'ก่อนอนุมัติ กรุณากรอกชื่อ รูป หมวดหมู่ และโซเชียลอย่างน้อยหนึ่งช่องทาง' }, { status: 400 });
-    const result = await collection.updateOne({ id }, { $set: update, ...(update.img ? { $unset: { photoId: '' } } : {}) });
+    const result = await collection.updateOne({ id, deletedAt:{$exists:false}, ...(update.status==='approved'?{'blacklist.active':{$ne:true}}:{}) }, { $set: update, ...(update.img ? { $unset: { photoId: '' } } : {}) });
+    if(!result.matchedCount&&update.status==='approved')return NextResponse.json({error:'ไม่สามารถเผยแพร่ได้ กรุณาตรวจสถานะ Blacklist และโหลดข้อมูลใหม่'},{status:409});
     return NextResponse.json({ success: !!result.matchedCount }, { status: result.matchedCount ? 200 : 404 });
 }
 catch {
     return NextResponse.json({ error: 'บันทึกไม่สำเร็จ' }, { status: 400 });
 } }
+
+export async function DELETE(req:Request){const denied=await requireAdmin();if(denied)return denied;if(!sameOrigin(req))return NextResponse.json({error:'Invalid origin'},{status:403});try{const data=await req.json();const id=text(data?.id,100);if(!id)return NextResponse.json({error:'Missing id'},{status:400});const result=await (await clientPromise).db('shiyastudio').collection('creators').updateOne({id,deletedAt:{$exists:false}},{$set:{deletedAt:new Date(),status:'hidden',featured:false,updatedAt:new Date()}});return NextResponse.json(result.matchedCount?{success:true}:{error:'ไม่พบโปรไฟล์'},{status:result.matchedCount?200:404})}catch{return NextResponse.json({error:'ลบโปรไฟล์ไม่สำเร็จ'},{status:400})}}

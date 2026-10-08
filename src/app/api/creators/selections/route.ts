@@ -12,7 +12,7 @@ export async function POST(req: Request) { if (!sameOrigin(req))
     if (!name || !validEmail(email) || !ids.length)
         return NextResponse.json({ error: 'กรุณากรอกชื่อ อีเมล และเลือกรายชื่อ' }, { status: 400 });
     const db = (await clientPromise).db('shiyastudio');
-    const creators = await db.collection('creators').find({ id: { $in: ids }, status: 'approved' }, { projection: { id: 1, author: 1, _id: 0 } }).toArray();
+    const creators = await db.collection('creators').find({ id: { $in: ids }, status: 'approved', 'blacklist.active': {$ne: true} }, { projection: { id: 1, author: 1, _id: 0 } }).toArray();
     if (creators.length !== ids.length)
         return NextResponse.json({ error: 'บางรายชื่อไม่พร้อมให้เลือก กรุณาโหลดหน้าใหม่' }, { status: 409 });
     const recent = await db.collection('creator_selections').countDocuments({ email, createdAt: { $gt: new Date(Date.now() - 3600000) } });

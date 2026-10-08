@@ -12,9 +12,13 @@ import {
   Camera,
   Loader2
 } from 'lucide-react';
+import {useLocale} from 'next-intl';
+import AdminLoading from '@/components/admin/AdminLoading';
 import { toast } from 'sonner';
 
 export default function AdminSettingsPage() {
+  const locale=useLocale();
+  const [fetching,setFetching]=useState(true);
   const [profile, setProfile] = useState({
     _id: '',
     name: 'Admin User',
@@ -32,28 +36,13 @@ export default function AdminSettingsPage() {
 
   const fetchProfile = async () => {
     try {
-      const meRes = await fetch('/api/auth/me');
-      const meData = await meRes.json();
-      const currentEmail = meData.email;
-
-      if (!currentEmail) return;
-
-      const res = await fetch('/api/users');
-      const users = await res.json();
-      const currentUser = users.find((u: any) => u.email === currentEmail);
-      
-      if (currentUser) {
-        setProfile(currentUser);
-      } else {
-        setProfile(prev => ({ 
-          ...prev, 
-          email: currentEmail, 
-          name: currentEmail.split('@')[0] 
-        }));
-      }
+      const response = await fetch('/api/auth/me');
+      if (!response.ok) throw new Error('ไม่สามารถโหลดข้อมูลบัญชีได้');
+      const data = await response.json();
+      setProfile({_id:data.id||'',name:data.name||data.email.split('@')[0],email:data.email,role:data.role||'Administrator',avatar:data.avatar||''});
     } catch (e) {
-      toast.error('Failed to load profile');
-    }
+      toast.error('โหลดข้อมูลบัญชีไม่สำเร็จ');
+    }finally{setFetching(false)}
   };
 
   const handleSave = async () => {
@@ -113,16 +102,18 @@ export default function AdminSettingsPage() {
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
-      window.location.href = '/admin/login';
+      window.location.href = `/${locale}/admin/login`;
     } catch (err) {
-      window.location.href = '/admin/login';
+      window.location.href = `/${locale}/admin/login`;
     }
   };
 
   const avatarUrl = profile.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.email}`;
 
+  if(fetching)return <AdminLoading label="กำลังโหลดข้อมูลบัญชี…"/>;
+
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-6 font-sans">
+    <div className="admin-page">
       <input 
         type="file" 
         ref={fileInputRef} 
@@ -132,24 +123,24 @@ export default function AdminSettingsPage() {
       />
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+      <div className="admin-page-header flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
          <div>
-            <h1 className="text-xl font-black tracking-tight text-slate-900 uppercase">Profile Settings</h1>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Manage your administrative identity</p>
+            <h1 className="text-xl font-semibold tracking-tight text-slate-900 uppercase">บัญชีและการตั้งค่า</h1>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-normal mt-1">จัดการข้อมูลบัญชีและรูปโปรไฟล์ของคุณ</p>
          </div>
          <div className="flex gap-2 w-full sm:w-auto">
            <button 
              onClick={handleLogout}
-             className="flex-1 sm:flex-none flex items-center justify-center gap-2 border border-red-100 text-red-500 px-4 py-2 rounded-xl hover:bg-red-50 transition font-bold text-[10px] uppercase tracking-widest"
+             className="flex-1 sm:flex-none flex items-center justify-center gap-2 border border-red-100 text-red-500 px-4 py-2 rounded-xl hover:bg-red-50 transition font-bold text-xs uppercase tracking-normal"
            >
-              <LogOut size={14} /> Logout
+              <LogOut size={14} /> ออกจากระบบ
            </button>
            <button 
              onClick={handleSave}
              disabled={loading}
-             className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 font-bold text-[10px] uppercase tracking-widest disabled:opacity-50"
+             className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 font-bold text-xs uppercase tracking-normal disabled:opacity-50"
            >
-              <Save size={14} /> {loading ? 'Saving...' : 'Save'}
+              <Save size={14} /> {loading ? 'กำลังบันทึก…' : 'บันทึก'}
            </button>
          </div>
       </div>
@@ -167,7 +158,7 @@ export default function AdminSettingsPage() {
                             <Loader2 className="animate-spin text-white" size={24} />
                          </div>
                        )}
-                       <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                       <img loading="lazy" decoding="async" src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                     </div>
                     <button 
                       onClick={() => fileInputRef.current?.click()}
@@ -177,17 +168,17 @@ export default function AdminSettingsPage() {
                     </button>
                  </div>
                  <h3 className="text-base font-bold text-slate-900 mt-4">{profile.name}</h3>
-                 <p className="text-[9px] font-black text-blue-600 uppercase tracking-[0.2em] mt-1">{profile.role}</p>
+                 <p className="text-xs font-semibold text-blue-600 uppercase tracking-normal mt-1">{profile.role}</p>
                  
                  <div className="mt-6 pt-6 border-t border-slate-50 flex items-center justify-center gap-4">
                     <div className="text-center">
                        <p className="text-xs font-bold text-slate-900">Active</p>
-                       <p className="text-[8px] text-slate-400 uppercase font-black tracking-widest">Status</p>
+                       <p className="text-xs text-slate-400 uppercase font-semibold tracking-normal">Status</p>
                     </div>
                     <div className="w-px h-6 bg-slate-100" />
                     <div className="text-center">
                        <p className="text-xs font-bold text-slate-900">Admin</p>
-                       <p className="text-[8px] text-slate-400 uppercase font-black tracking-widest">Access</p>
+                       <p className="text-xs text-slate-400 uppercase font-semibold tracking-normal">Access</p>
                     </div>
                  </div>
               </div>
@@ -202,14 +193,14 @@ export default function AdminSettingsPage() {
                     <User size={16} />
                  </div>
                  <div>
-                    <h2 className="text-sm font-black text-slate-900 uppercase tracking-tight">Account Information</h2>
-                    <p className="text-[9px] text-slate-400 uppercase tracking-widest mt-0.5">Basic profile details</p>
+                    <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-tight">Account Information</h2>
+                    <p className="text-xs text-slate-400 uppercase tracking-normal mt-0.5">Basic profile details</p>
                  </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Display Name</label>
+                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">ชื่อที่แสดง</label>
                     <input 
                       type="text" 
                       value={profile.name}
@@ -218,7 +209,7 @@ export default function AdminSettingsPage() {
                     />
                  </div>
                  <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Connection</label>
+                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">อีเมลบัญชี</label>
                     <div className="relative">
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-300" />
                       <input 

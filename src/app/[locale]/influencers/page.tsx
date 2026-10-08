@@ -12,7 +12,7 @@ export default async function InfluencersPage() {
   const service = serviceSettings?.services?.find((item: { slug: string }) => item.slug === 'influencer');
   const heroImage = typeof service?.image === 'string' ? service.image : '';
   const settings = await client.db('shiyastudio').collection('settings').findOne({ type: 'influencer' }, { projection: { profiles: 1, profileCategories: 1, profileGenders: 1 } });
-  const profiles = await client.db('shiyastudio').collection<CreatorRecord>('creators').find({status:'approved'}).sort({featured:-1,createdAt:-1}).toArray();
+  const profiles = await client.db('shiyastudio').collection<CreatorRecord>('creators').find({status:'approved','blacklist.active':{$ne:true}}).sort({featured:-1,createdAt:-1}).toArray();
   const items: Creator[] = profiles.map(publicCreator);
   return <InfluencersClient items={items} heroImage={heroImage} configuredCategories={Array.isArray(settings?.profileCategories) ? settings.profileCategories : ['Beauty','Fashion','Lifestyle','Food','Travel','Tech','Health','Pet','Business']} configuredGenders={Array.isArray(settings?.profileGenders) ? settings.profileGenders : ['หญิง','ชาย','ไม่ระบุ']}/>;
 }

@@ -1,4 +1,5 @@
 "use client";
+import {useConfirm} from '@/components/admin/ConfirmDialog';
 
 import React, { useState, useEffect } from 'react';
 import { 
@@ -14,6 +15,7 @@ import {
   ChevronRight,
   Settings2
 } from 'lucide-react';
+import AdminLoading from '@/components/admin/AdminLoading';
 import { toast } from 'sonner';
 
 // Hardcoded services removed, fetched dynamically instead
@@ -67,6 +69,7 @@ function findDuplicateId(data: Record<string, ServiceWork[]>): { service: string
 }
 
 export default function ServiceWorksAdminPage() {
+ const confirmAction=useConfirm();
   const [activeService, setActiveService] = useState('influencer');
   const [dynamicServices, setDynamicServices] = useState<{id: string, label: string}[]>([]);
   const [servicesData, setServicesData] = useState<Record<string, ServiceWork[]>>({});
@@ -76,7 +79,7 @@ export default function ServiceWorksAdminPage() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // Warn before closing/refreshing the tab if there are edits that haven't
-  // been pushed via "Save All Changes" yet (field edits inside the modal
+  // been pushed via "บันทึกการเปลี่ยนแปลง" yet (field edits inside the modal
   // only update local state - see handleUpdateWork).
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
@@ -156,7 +159,7 @@ export default function ServiceWorksAdminPage() {
   };
 
   const handleRemoveWork = async (index: number) => {
-    if (!confirm('ต้องการลบโปรเจกต์นี้ใช่ไหม?')) return;
+    if (!await confirmAction('ต้องการลบโปรเจกต์นี้ใช่ไหม?')) return;
     
     setServicesData(prev => {
       const newWorks = [...(prev[activeService] || [])];
@@ -199,8 +202,8 @@ export default function ServiceWorksAdminPage() {
     setHasUnsavedChanges(true);
   };
 
-  const closeModal = () => {
-    if (hasUnsavedChanges && !confirm('มีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก ต้องการออกโดยไม่บันทึกใช่ไหม?')) {
+  const closeModal = async () => {
+    if (hasUnsavedChanges && !await confirmAction('มีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก ต้องการออกโดยไม่บันทึกใช่ไหม?',{title:'ออกโดยไม่บันทึก',confirmLabel:'ออกโดยไม่บันทึก'})) {
       return;
     }
     setSelectedWork(null);
@@ -262,18 +265,14 @@ export default function ServiceWorksAdminPage() {
     }
   };
 
-  if (loading) return (
-    <div className="p-8 flex items-center justify-center min-h-[400px]">
-      <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
+  if (loading) return <AdminLoading/>;
 
   return (
-    <div className="max-w-6xl mx-auto p-4 md:p-8 font-sans animate-in fade-in duration-500">
+    <div className="admin-page">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <div className="admin-page-header flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Service Portfolios</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">ผลงานแยกตามบริการ</h1>
             <p className="text-sm text-slate-500 mt-1">จัดการพอร์ตโฟลิโอสำหรับแต่ละบริการ</p>
          </div>
          <button 
@@ -281,7 +280,7 @@ export default function ServiceWorksAdminPage() {
            disabled={saving}
            className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 font-bold text-sm"
          >
-            <Save size={18} /> {saving ? 'Saving...' : 'Save All Changes'}
+            <Save size={18} /> {saving ? 'กำลังบันทึก…' : 'บันทึกการเปลี่ยนแปลง'}
          </button>
       </div>
 
@@ -291,7 +290,7 @@ export default function ServiceWorksAdminPage() {
           <button
             key={service.id}
             onClick={() => setActiveService(service.id)}
-            className={`px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
+            className={`px-5 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-normal transition-all ${
               activeService === service.id 
               ? 'bg-white text-blue-600 shadow-sm' 
               : 'text-slate-500 hover:text-slate-700'
@@ -308,14 +307,14 @@ export default function ServiceWorksAdminPage() {
           <div key={work.id} className="group bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col">
             <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden">
                {work.coverImage ? (
-                  <img src={work.coverImage} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="" />
+                  <img loading="lazy" decoding="async" src={work.coverImage} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="" />
                ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-2">
                      <ImageIcon size={40} />
                   </div>
                )}
                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                  <button onClick={() => setSelectedWork(work)} className="bg-white text-black px-4 py-2 rounded-xl text-xs font-bold shadow-xl hover:scale-105 transition-all">Edit Details</button>
+                  <button onClick={() => setSelectedWork(work)} className="bg-white text-black px-4 py-2 rounded-xl text-xs font-bold shadow-xl hover:scale-105 transition-all">แก้ไขรายละเอียด</button>
                </div>
                <div className="absolute top-4 right-4 z-10">
                   <button onClick={() => handleRemoveWork(index)} className="w-8 h-8 bg-white/20 backdrop-blur-md hover:bg-red-500 text-white rounded-lg flex items-center justify-center transition-all">
@@ -330,15 +329,15 @@ export default function ServiceWorksAdminPage() {
             </div>
             <div className="p-5 flex-1 flex flex-col gap-3">
                <div className="space-y-1">
-                  <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{work.category}</p>
+                  <p className="text-xs font-semibold text-blue-600 uppercase tracking-normal">{work.category}</p>
                   <h3 className="text-base font-bold text-slate-900 truncate">{work.brand}</h3>
                   <p className="text-xs text-slate-500 truncate">{work.campaign}</p>
                </div>
                <button 
                   onClick={() => setSelectedWork(work)}
-                  className="mt-auto w-full py-2.5 rounded-xl border border-slate-100 bg-slate-50 text-slate-500 text-[10px] font-black uppercase tracking-widest hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100 transition-all flex items-center justify-center gap-2"
+                  className="mt-auto w-full py-2.5 rounded-xl border border-slate-100 bg-slate-50 text-slate-500 text-xs font-semibold uppercase tracking-normal hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100 transition-all flex items-center justify-center gap-2"
                >
-                  <Settings2 size={12} /> Manage Content
+                  <Settings2 size={12} /> จัดการผลงาน
                </button>
             </div>
           </div>
@@ -351,7 +350,7 @@ export default function ServiceWorksAdminPage() {
            <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center group-hover:scale-110 transition-transform">
               <PlusCircle size={24} />
            </div>
-           <span className="text-xs uppercase tracking-widest">Add Project</span>
+           <span className="text-xs uppercase tracking-normal">เพิ่มผลงาน</span>
         </button>
       </div>
 
@@ -369,38 +368,38 @@ export default function ServiceWorksAdminPage() {
                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                  <div className="space-y-4">
                    <div>
-                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">ID (URL Slug)</label>
+                     <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">ID (URL Slug)</label>
                      <input type="text" value={selectedWork.id} onChange={(e) => handleUpdateWork(currentWorks.findIndex(w => w.id === selectedWork.id), 'id', e.target.value)} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm" />
                    </div>
                    <div>
-                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Brand Name</label>
+                     <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">Brand Name</label>
                      <input type="text" value={selectedWork.brand} onChange={(e) => handleUpdateWork(currentWorks.findIndex(w => w.id === selectedWork.id), 'brand', e.target.value)} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm" />
                    </div>
                    <div>
-                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Logo Text / Mini Title</label>
+                     <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">Logo Text / Mini Title</label>
                      <input type="text" value={selectedWork.logoText || ''} onChange={(e) => handleUpdateWork(currentWorks.findIndex(w => w.id === selectedWork.id), 'logoText', e.target.value)} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm" />
                    </div>
                    <div>
-                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Campaign Subtitle</label>
+                     <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">Campaign Subtitle</label>
                      <input type="text" value={selectedWork.campaign} onChange={(e) => handleUpdateWork(currentWorks.findIndex(w => w.id === selectedWork.id), 'campaign', e.target.value)} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm" />
                    </div>
                    <div>
-                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
+                     <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">Category</label>
                      <input type="text" value={selectedWork.category} onChange={(e) => handleUpdateWork(currentWorks.findIndex(w => w.id === selectedWork.id), 'category', e.target.value)} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm" />
                    </div>
                     <div>
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tags (comma separated)</label>
+                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">Tags (comma separated)</label>
                       <input type="text" value={(selectedWork.tags || []).join(', ')} onChange={(e) => handleUpdateWork(currentWorks.findIndex(w => w.id === selectedWork.id), 'tags', e.target.value.split(',').map(s => s.trim()))} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm" />
                     </div>
                     <div>
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 text-purple-600">Move to Service (ย้ายหมวดหมู่)</label>
+                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1 text-purple-600">Move to Service (ย้ายหมวดหมู่)</label>
                       <select 
                         value={activeService}
-                        onChange={(e) => {
+                        onChange={async (e) => {
                           const newServiceId = e.target.value;
                           if (newServiceId === activeService) return;
                           
-                          if (!confirm(`ย้ายโปรเจกต์นี้ไปที่หมวดหมู่ใหม่ใช่หรือไม่?`)) return;
+                          if (!await confirmAction('ย้ายโปรเจกต์นี้ไปที่หมวดหมู่ใหม่ใช่หรือไม่?',{title:'ย้ายหมวดหมู่',confirmLabel:'ยืนยันการย้าย',danger:false})) return;
 
                           setServicesData(prev => {
                             const currentServiceWorks = [...(prev[activeService] || [])];
@@ -422,7 +421,7 @@ export default function ServiceWorksAdminPage() {
                           setHasUnsavedChanges(true);
                           setActiveService(newServiceId);
                           setSelectedWork(null);
-                          toast.success(`ย้ายโปรเจกต์เรียบร้อยแล้ว (อย่าลืมกด Save All Changes)`);
+                          toast.success(`ย้ายโปรเจกต์เรียบร้อยแล้ว (อย่าลืมกด บันทึกการเปลี่ยนแปลง)`);
                         }}
                         className="w-full px-4 py-2 bg-purple-50 border border-purple-200 rounded-xl text-sm font-bold text-purple-700 outline-none"
                       >
@@ -435,7 +434,7 @@ export default function ServiceWorksAdminPage() {
 
                  <div className="space-y-4">
                     <div>
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Cover Image</label>
+                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">ภาพหน้าปก</label>
                       <div className="flex gap-2 mb-2">
                         <input type="text" value={selectedWork.coverImage} onChange={(e) => handleUpdateWork(currentWorks.findIndex(w => w.id === selectedWork.id), 'coverImage', e.target.value)} className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm" />
                         <label className="px-4 py-2 bg-blue-100 text-blue-600 rounded-xl text-xs font-bold cursor-pointer">
@@ -443,11 +442,11 @@ export default function ServiceWorksAdminPage() {
                         </label>
                       </div>
                       {selectedWork.coverImage && (
-                        <img src={selectedWork.coverImage} alt="Cover preview" className="w-full h-28 object-cover rounded-lg border border-slate-200" />
+                        <img loading="lazy" decoding="async" src={selectedWork.coverImage} alt="Cover preview" className="w-full h-28 object-cover rounded-lg border border-slate-200" />
                       )}
                     </div>
                     <div>
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Hero Banner Image (Detail Page)</label>
+                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">Hero Banner Image (Detail Page)</label>
                       <div className="flex gap-2 mb-2">
                         <input type="text" value={selectedWork.heroImage || ''} onChange={(e) => handleUpdateWork(currentWorks.findIndex(w => w.id === selectedWork.id), 'heroImage', e.target.value)} className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm" />
                         <label className="px-4 py-2 bg-blue-100 text-blue-600 rounded-xl text-xs font-bold cursor-pointer">
@@ -455,7 +454,7 @@ export default function ServiceWorksAdminPage() {
                         </label>
                       </div>
                       {selectedWork.heroImage && (
-                        <img src={selectedWork.heroImage} alt="Hero preview" className="w-full h-28 object-cover rounded-lg border border-slate-200" />
+                        <img loading="lazy" decoding="async" src={selectedWork.heroImage} alt="Hero preview" className="w-full h-28 object-cover rounded-lg border border-slate-200" />
                       )}
                     </div>
                     <div>
@@ -465,7 +464,7 @@ export default function ServiceWorksAdminPage() {
                       </label>
                     </div>
                     <div>
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">About Text</label>
+                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">About Text</label>
                       <textarea rows={3} value={selectedWork.about || ''} onChange={(e) => handleUpdateWork(currentWorks.findIndex(w => w.id === selectedWork.id), 'about', e.target.value)} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm" />
                     </div>
                  </div>
@@ -473,18 +472,18 @@ export default function ServiceWorksAdminPage() {
 
                {/* Stats */}
                <div>
-                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest border-b border-slate-100 pb-2 mb-4">Stats</h3>
+                  <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-normal border-b border-slate-100 pb-2 mb-4">Stats</h3>
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Reach</label>
+                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">Reach</label>
                       <input type="text" value={selectedWork.stats?.reach || ''} onChange={(e) => handleUpdateWork(currentWorks.findIndex(w => w.id === selectedWork.id), 'stats.reach', e.target.value)} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm" />
                     </div>
                     <div>
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Views</label>
+                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">Views</label>
                       <input type="text" value={selectedWork.stats?.views || ''} onChange={(e) => handleUpdateWork(currentWorks.findIndex(w => w.id === selectedWork.id), 'stats.views', e.target.value)} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm" />
                     </div>
                     <div>
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Engagement</label>
+                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">Engagement</label>
                       <input type="text" value={selectedWork.stats?.engagement || ''} onChange={(e) => handleUpdateWork(currentWorks.findIndex(w => w.id === selectedWork.id), 'stats.engagement', e.target.value)} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm" />
                     </div>
                   </div>
@@ -493,7 +492,7 @@ export default function ServiceWorksAdminPage() {
                {/* Gallery */}
                <div>
                   <div className="flex justify-between items-center border-b border-slate-100 pb-2 mb-4">
-                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Gallery Content ({selectedWork.gallery.length})</h3>
+                    <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-normal">Gallery Content ({selectedWork.gallery.length})</h3>
                     <div className="flex gap-2">
                        <button onClick={() => {
                          const gallery = [...selectedWork.gallery, { id: Date.now(), type: 'PHOTO', image: '' }];
@@ -509,31 +508,31 @@ export default function ServiceWorksAdminPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                      {selectedWork.gallery.map((gItem, gIdx) => (
                         <div key={gIdx} className="p-4 border border-slate-200 rounded-xl bg-slate-50 flex flex-col gap-3 relative">
-                           <button onClick={() => {
-                             if (!confirm('ลบไอเทมนี้ออกจาก gallery ใช่ไหม?')) return;
+                           <button onClick={async () => {
+                             if (!await confirmAction('ลบไอเทมนี้ออกจาก gallery ใช่ไหม?')) return;
                              const gallery = [...selectedWork.gallery];
                              gallery.splice(gIdx, 1);
                              handleUpdateWork(currentWorks.findIndex(w => w.id === selectedWork.id), 'gallery', gallery);
                            }} className="absolute top-2 right-2 p-1 text-red-500 hover:bg-red-100 rounded-md"><Trash2 size={14}/></button>
                            
-                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                            <div className="text-xs font-semibold text-slate-400 uppercase tracking-normal flex items-center gap-2">
                                {gItem.type === 'VIDEO' ? '🎬 VIDEO ITEM' : '📷 PHOTO ITEM'}
                             </div>
                             
                             {/* Thumbnail Preview (skip video files & social links) */}
                             {gItem.image && !gItem.image.includes('tiktok') && !gItem.image.includes('youtube') && !gItem.image.includes('instagram') && !/\.(mp4|mov|webm|m4v)(\?|$)/i.test(gItem.image) && (
-                              <img src={gItem.image} className="w-full h-20 object-cover rounded-lg border" alt="preview" />
+                              <img loading="lazy" decoding="async" src={gItem.image} className="w-full h-20 object-cover rounded-lg border" alt="preview" />
                             )}
                             
                             <div>
-                              <div className="text-[9px] text-slate-400 mb-1 font-bold">📸 รูปภาพ Thumbnail (อัปโหลดหรือวาง URL รูป)</div>
+                              <div className="text-xs text-slate-400 mb-1 font-bold">📸 รูปภาพ Thumbnail (อัปโหลดหรือวาง URL รูป)</div>
                               <div className="flex gap-2">
                                <input type="text" placeholder="URL รูปภาพ (ไม่ใช่ลิงก์วิดีโอ)" value={gItem.image} onChange={(e) => {
                                   const gallery = [...selectedWork.gallery];
                                   gallery[gIdx].image = e.target.value;
                                   handleUpdateWork(currentWorks.findIndex(w => w.id === selectedWork.id), 'gallery', gallery);
                                }} className="w-full px-2 py-1 text-xs border rounded-md" />
-                               <label className="px-2 py-1 bg-blue-100 text-blue-600 rounded-md text-[10px] font-bold cursor-pointer whitespace-nowrap">
+                               <label className="px-2 py-1 bg-blue-100 text-blue-600 rounded-md text-xs font-bold cursor-pointer whitespace-nowrap">
                                  อัปโหลด <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files && handleFileUpload(e.target.files[0], (url) => {
                                     const gallery = [...selectedWork.gallery];
                                     gallery[gIdx].image = url;
@@ -546,14 +545,14 @@ export default function ServiceWorksAdminPage() {
                            {gItem.type === 'VIDEO' && (
                              <>
                                 <div>
-                                   <div className="text-[9px] text-slate-400 mb-1 font-bold">🔗 ลิงก์วิดีโอ TikTok / YouTube / Instagram หรือ อัปโหลดไฟล์วิดีโอ (กดแล้วจะเล่น/เปิดลิงก์นี้)</div>
+                                   <div className="text-xs text-slate-400 mb-1 font-bold">🔗 ลิงก์วิดีโอ TikTok / YouTube / Instagram หรือ อัปโหลดไฟล์วิดีโอ (กดแล้วจะเล่น/เปิดลิงก์นี้)</div>
                                    <div className="flex gap-2">
                                      <input type="text" placeholder="วางลิงก์ หรือ อัปโหลดไฟล์ด้านขวา" value={gItem.videoUrl || ''} onChange={(e) => {
                                       const gallery = [...selectedWork.gallery];
                                       gallery[gIdx].videoUrl = e.target.value;
                                       handleUpdateWork(currentWorks.findIndex(w => w.id === selectedWork.id), 'gallery', gallery);
                                    }} className="w-full px-2 py-1 text-xs border rounded-md border-blue-200 bg-blue-50" />
-                                     <label className="px-2 py-1 bg-purple-100 text-purple-600 rounded-md text-[10px] font-bold cursor-pointer whitespace-nowrap">
+                                     <label className="px-2 py-1 bg-purple-100 text-purple-600 rounded-md text-xs font-bold cursor-pointer whitespace-nowrap">
                                        อัปวิดีโอ <input type="file" className="hidden" accept="video/*" onChange={(e) => e.target.files && handleFileUpload(e.target.files[0], (url) => {
                                           const gallery = [...selectedWork.gallery];
                                           gallery[gIdx].videoUrl = url;
@@ -562,7 +561,7 @@ export default function ServiceWorksAdminPage() {
                                      </label>
                                    </div>
                                    {gItem.videoUrl && /\.(mp4|mov|webm|m4v)(\?|$)/i.test(gItem.videoUrl) && (
-                                     <p className="text-[9px] text-green-600 mt-1 font-bold truncate">✓ อัปโหลดไฟล์วิดีโอแล้ว</p>
+                                     <p className="text-xs text-green-600 mt-1 font-bold truncate">✓ อัปโหลดไฟล์วิดีโอแล้ว</p>
                                    )}
                                 </div>
                                 <input type="text" placeholder="Duration (e.g. 00:30)" value={gItem.duration || ''} onChange={(e) => {
@@ -600,7 +599,7 @@ export default function ServiceWorksAdminPage() {
             
             <div className="px-8 py-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/50">
               <button onClick={handleSave} disabled={saving} className="px-6 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold disabled:opacity-50">{saving ? 'กำลังบันทึก…' : 'บันทึกการเปลี่ยนแปลง'}</button>
-              <button onClick={closeModal} className="px-10 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all">Done Editing</button>
+              <button onClick={closeModal} className="px-10 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-semibold uppercase tracking-normal shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all">Done Editing</button>
             </div>
           </div>
         </div>

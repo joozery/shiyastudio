@@ -8,3 +8,9 @@
 :global(html):has(.page)::-webkit-scrollbar,:global(body):has(.page)::-webkit-scrollbar,.page::-webkit-scrollbar,.page *::-webkit-scrollbar{display:none;width:0;height:0}
 .helpPhoto{height:240px}.helpPhoto img{object-position:center 45%}.help>div:last-child{margin-top:-35px}
 .nameGrid{display:grid;grid-template-columns:.8fr 1fr 1fr .85fr;gap:16px;margin:16px 0 0 47px}@media(max-width:1050px){.nameGrid{grid-template-columns:repeat(2,minmax(0,1fr));margin-left:0}}@media(max-width:700px){.nameGrid{gap:13px}}@media(max-width:380px){.nameGrid{grid-template-columns:1fr}}
+
+/* A light mobile overlay adds contrast behind dark hero text. */
+@media(max-width:700px){.heroShade{display:block;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.4) 0,transparent 100px),linear-gradient(90deg,rgba(245,242,237,.76) 0%,rgba(245,242,237,.56) 48%,rgba(245,242,237,.16) 100%)}}
+
+/* Reuse the application wizard inside the admin workspace. */
+.adminPage{background:transparent;color:#0f172a}.adminPage .application{margin:0;padding:0;background:transparent;border-radius:0}.adminPage .wrap{width:100%;max-width:none}.adminPage .layout{grid-template-columns:230px minmax(0,1fr);gap:22px}.adminPage .sidebar{top:92px}.adminPage .sidebar nav{background:#fff;border:1px solid #cbd5e1;border-radius:14px;overflow:hidden}.adminPage .panel{border:1px solid #cbd5e1;border-radius:14px;box-shadow:none;padding:26px 28px 0}.adminPage .sidebar nav button strong{color:#1e293b}.adminPage .sidebar nav button small{color:#475569}.adminPage .field>span{color:#334155}.adminPage .field input,.adminPage .field select,.adminPage .field textarea{border-color:#94a3b8;color:#0f172a}.adminPage .privateNote{color:#475569}@media(max-width:1000px){.adminPage .layout{grid-template-columns:minmax(0,1fr)}.adminPage .sidebar{position:static}.adminPage .panel{padding:22px 20px 0}}@media(max-width:600px){.adminPage .panel{padding:20px 16px 0}}

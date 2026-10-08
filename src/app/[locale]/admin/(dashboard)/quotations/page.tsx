@@ -1,4 +1,5 @@
 "use client";
+import {useConfirm} from '@/components/admin/ConfirmDialog';
 
 import React, { useState, useEffect } from 'react';
 import { 
@@ -43,6 +44,7 @@ interface Quotation {
 }
 
 export default function QuotationsAdminPage() {
+ const confirmAction=useConfirm();
   const [quotations, setQuotations] = useState<Quotation[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -66,6 +68,7 @@ export default function QuotationsAdminPage() {
     setLoading(true);
     try {
       const res = await fetch('/api/quotations');
+      if(!res.ok)throw new Error('โหลดข้อมูลไม่สำเร็จ');
       const data = await res.json();
       setQuotations(data);
     } catch (e) {
@@ -128,7 +131,7 @@ export default function QuotationsAdminPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this quotation?')) return;
+    if (!await confirmAction('ต้องการลบใบเสนอราคานี้ใช่ไหม?')) return;
     try {
       const res = await fetch(`/api/quotations?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
@@ -159,11 +162,11 @@ export default function QuotationsAdminPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-4 md:p-8 font-sans">
+    <div className="admin-page">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <div className="admin-page-header flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900">Quotations</h1>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900">ใบเสนอราคา</h1>
           <p className="text-xs text-slate-500 mt-1">จัดการและออกใบเสนอราคาสำหรับลูกค้า</p>
         </div>
         <button 
@@ -182,16 +185,16 @@ export default function QuotationsAdminPage() {
           }}
           className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 font-bold text-xs"
         >
-          <Plus size={16} /> Create Quotation
+          <Plus size={16} /> สร้างใบเสนอราคา
         </button>
       </div>
 
       {/* Stats / Filters */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <StatCard title="Total Quotations" value={quotations.length} icon={<FileText className="text-blue-500" />} />
+        <StatCard title="ใบเสนอราคาทั้งหมด" value={quotations.length} icon={<FileText className="text-blue-500" />} />
         <StatCard title="Pending" value={quotations.filter(q => q.status === 'pending').length} icon={<Clock className="text-slate-400" />} />
         <StatCard title="Accepted" value={quotations.filter(q => q.status === 'accepted').length} icon={<CheckCircle2 className="text-green-500" />} />
-        <StatCard title="Revenue (Accepted)" value={quotations.filter(q => q.status === 'accepted').reduce((s, q) => s + q.total, 0).toLocaleString()} icon={<DollarSign className="text-emerald-500" />} />
+        <StatCard title="ยอดที่ลูกค้าตอบรับ" value={quotations.filter(q => q.status === 'accepted').reduce((s, q) => s + q.total, 0).toLocaleString()} icon={<DollarSign className="text-emerald-500" />} />
       </div>
 
       {/* List Table */}
@@ -200,12 +203,12 @@ export default function QuotationsAdminPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-100">
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Number</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Client</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Amount</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Date</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Actions</th>
+                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-normal text-slate-400">Number</th>
+                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-normal text-slate-400">Client</th>
+                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-normal text-slate-400">Amount</th>
+                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-normal text-slate-400">Status</th>
+                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-normal text-slate-400">Date</th>
+                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-normal text-slate-400 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -216,25 +219,25 @@ export default function QuotationsAdminPage() {
               ) : quotations.map((q) => (
                 <tr key={q._id} className="hover:bg-slate-50/50 transition-colors group">
                   <td className="px-6 py-4">
-                    <span className="text-xs font-black text-slate-900">{q.quotationNumber}</span>
+                    <span className="text-xs font-semibold text-slate-900">{q.quotationNumber}</span>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-col">
                       <span className="text-sm font-bold text-slate-800">{q.clientName}</span>
-                      <span className="text-[10px] text-slate-400">{q.clientEmail}</span>
+                      <span className="text-xs text-slate-400">{q.clientEmail}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-sm font-black text-slate-900">฿{q.total.toLocaleString()}</span>
+                    <span className="text-sm font-semibold text-slate-900">฿{q.total.toLocaleString()}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border ${getStatusColor(q.status)}`}>
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${getStatusColor(q.status)}`}>
                       {getStatusIcon(q.status)}
                       {q.status.toUpperCase()}
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-[11px] text-slate-500 font-medium">
+                    <span className="text-xs text-slate-500 font-medium">
                       {new Date(q.createdAt).toLocaleDateString('th-TH')}
                     </span>
                   </td>
@@ -268,7 +271,7 @@ export default function QuotationsAdminPage() {
             <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <div>
                 <h2 className="text-xl font-bold text-slate-900">{currentQuotation._id ? 'Edit Quotation' : 'New Quotation'}</h2>
-                <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mt-1">{currentQuotation.quotationNumber}</p>
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-normal mt-1">{currentQuotation.quotationNumber}</p>
               </div>
               <button onClick={() => setShowModal(false)} className="p-2 hover:bg-slate-200 rounded-full transition-colors"><X size={20} /></button>
             </div>
@@ -278,7 +281,7 @@ export default function QuotationsAdminPage() {
               {/* Client Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Client Name</label>
+                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">Client Name</label>
                   <div className="relative">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
                     <input 
@@ -291,7 +294,7 @@ export default function QuotationsAdminPage() {
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Client Email</label>
+                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">Client Email</label>
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
                     <input 
@@ -308,15 +311,15 @@ export default function QuotationsAdminPage() {
               {/* Items Section */}
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Items / Services</label>
-                  <button onClick={handleAddItem} className="text-[10px] font-black text-blue-600 hover:text-blue-700 flex items-center gap-1 uppercase tracking-widest">
+                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">Items / Services</label>
+                  <button onClick={handleAddItem} className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 uppercase tracking-normal">
                     <Plus size={14} /> Add Item
                   </button>
                 </div>
                 
                 <div className="space-y-3">
                   {currentQuotation.items?.map((item, idx) => (
-                    <div key={idx} className="flex gap-3 items-start group">
+                    <div key={idx} className="admin-quotation-item group">
                       <div className="flex-1">
                         <input 
                           type="text" 
@@ -343,7 +346,7 @@ export default function QuotationsAdminPage() {
                           className="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold focus:outline-none focus:border-blue-500 transition-all"
                         />
                       </div>
-                      <div className="w-32 py-3 text-right font-black text-slate-900 text-sm">
+                      <div className="w-32 py-3 text-right font-semibold text-slate-900 text-sm">
                         ฿{item.total.toLocaleString()}
                       </div>
                       <button onClick={() => handleRemoveItem(idx)} className="p-3 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><X size={16} /></button>
@@ -355,7 +358,7 @@ export default function QuotationsAdminPage() {
               {/* Status & Summary */}
               <div className="flex flex-col md:flex-row gap-8 items-end pt-4 border-t border-slate-100">
                 <div className="flex-1 w-full space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Quotation Status</label>
+                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-normal ml-1">Quotation Status</label>
                   <select 
                     value={currentQuotation.status}
                     onChange={(e) => setCurrentQuotation({...currentQuotation, status: e.target.value as any})}
@@ -377,7 +380,7 @@ export default function QuotationsAdminPage() {
                     <span>VAT (7%)</span>
                     <span>฿{currentQuotation.vat?.toLocaleString()}</span>
                   </div>
-                  <div className="pt-3 border-t border-slate-200 flex justify-between text-base font-black text-slate-900">
+                  <div className="pt-3 border-t border-slate-200 flex justify-between text-base font-semibold text-slate-900">
                     <span>Total</span>
                     <span>฿{currentQuotation.total?.toLocaleString()}</span>
                   </div>
@@ -406,8 +409,8 @@ function StatCard({ title, value, icon }: { title: string, value: any, icon: Rea
         {icon}
       </div>
       <div>
-        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{title}</p>
-        <p className="text-lg font-black text-slate-900 leading-tight mt-0.5">{value}</p>
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-normal">{title}</p>
+        <p className="text-lg font-semibold text-slate-900 leading-tight mt-0.5">{value}</p>
       </div>
     </div>
   );

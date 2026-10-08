@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Save, Plus, Trash2, GripVertical, Image as ImageIcon, Upload, Link as LinkIcon, Eye } from 'lucide-react';
+import AdminLoading from '@/components/admin/AdminLoading';
 import { toast } from 'sonner';
 
 export default function ClientsAdminPage() {
@@ -83,22 +84,18 @@ export default function ClientsAdminPage() {
     setUploadingIndex(null);
   };
 
-  if (loading) return (
-    <div className="p-8 font-sans flex items-center justify-center h-64">
-      <div className="w-8 h-8 rounded-full border-2 border-blue-600 border-t-transparent animate-spin" />
-    </div>
-  );
+  if (loading) return <AdminLoading/>;
 
   const withLogos = clients.filter(c => c.image).length;
   const withoutLogos = clients.filter(c => !c.image).length;
 
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-8 font-sans animate-in fade-in duration-500 space-y-8">
+    <div className="admin-page space-y-8">
 
       {/* ─── Header ─── */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="admin-page-header flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Brand Clients Manager</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">ลูกค้าและพาร์ตเนอร์</h1>
           <p className="text-sm text-slate-500 mt-1">จัดการโลโก้แบรนด์ที่แสดงใน Scrolling Marquee ของเว็บไซต์</p>
         </div>
         <div className="flex gap-3">
@@ -121,16 +118,16 @@ export default function ClientsAdminPage() {
       {/* ─── Stats ─── */}
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm text-center">
-          <p className="text-2xl font-black text-slate-900">{clients.length}</p>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-1">แบรนด์ทั้งหมด</p>
+          <p className="text-2xl font-semibold text-slate-900">{clients.length}</p>
+          <p className="text-xs font-bold uppercase tracking-normal text-slate-400 mt-1">แบรนด์ทั้งหมด</p>
         </div>
         <div className="bg-green-50 border border-green-100 rounded-2xl p-4 shadow-sm text-center">
-          <p className="text-2xl font-black text-green-700">{withLogos}</p>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-green-500 mt-1">มีโลโก้</p>
+          <p className="text-2xl font-semibold text-green-700">{withLogos}</p>
+          <p className="text-xs font-bold uppercase tracking-normal text-green-500 mt-1">มีโลโก้</p>
         </div>
         <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 shadow-sm text-center">
-          <p className="text-2xl font-black text-amber-700">{withoutLogos}</p>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-amber-500 mt-1">ยังไม่มีโลโก้</p>
+          <p className="text-2xl font-semibold text-amber-700">{withoutLogos}</p>
+          <p className="text-xs font-bold uppercase tracking-normal text-amber-500 mt-1">ยังไม่มีโลโก้</p>
         </div>
       </div>
 
@@ -141,9 +138,9 @@ export default function ClientsAdminPage() {
           <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-white/5">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <p className="text-[9px] font-black uppercase tracking-widest text-white/30">Live Preview — Website Marquee</p>
+              <p className="text-xs font-semibold uppercase tracking-normal text-white/30">Live Preview — Website Marquee</p>
             </div>
-            <span className="text-[9px] font-bold text-white/20">{clients.length} แบรนด์</span>
+            <span className="text-xs font-bold text-white/20">{clients.length} แบรนด์</span>
           </div>
 
           {/* Marquee Rows */}
@@ -189,7 +186,7 @@ export default function ClientsAdminPage() {
       {/* ─── Brand Cards Grid ─── */}
       <div>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+          <h2 className="text-xs font-semibold uppercase tracking-normal text-slate-400 flex items-center gap-2">
             <span className="w-6 h-[1.5px] bg-slate-200 inline-block" /> รายการแบรนด์
           </h2>
           <button
@@ -243,14 +240,13 @@ function LogoSlideItem({ client, dim = false }: { client: any; dim?: boolean }) 
     <div className="flex-shrink-0 group cursor-pointer">
       <div className="w-36 h-16 rounded-2xl overflow-hidden border border-white/10 group-hover:border-blue-500/60 transition-all duration-500 bg-zinc-900">
         {client.image ? (
-          <img
-            src={client.image}
+          <img loading="lazy" decoding="async" src={client.image}
             alt={client.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <span className="text-[10px] font-black uppercase tracking-widest text-white/20 group-hover:text-white/40 transition-colors select-none">
+            <span className="text-xs font-semibold uppercase tracking-normal text-white/20 group-hover:text-white/40 transition-colors select-none">
               {client.name || 'BRAND'}
             </span>
           </div>
@@ -279,20 +275,20 @@ function BrandCard({ client, index, isUploading, onUpdate, onRemove, onFileUploa
           {isUploading ? (
             <div className="flex flex-col items-center gap-2 text-blue-500">
               <div className="w-6 h-6 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
-              <span className="text-[10px] font-bold">กำลังอัปโหลด...</span>
+              <span className="text-xs font-bold">กำลังอัปโหลด...</span>
             </div>
           ) : client.image ? (
             <>
-              <img src={client.image} alt={client.name} className="max-h-16 max-w-full object-contain" />
+              <img loading="lazy" decoding="async" src={client.image} alt={client.name} className="max-h-16 max-w-full object-contain" />
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/logo:opacity-100 transition-opacity rounded-2xl flex items-center justify-center">
-                <span className="text-white text-[10px] font-bold uppercase tracking-widest">เปลี่ยนโลโก้</span>
+                <span className="text-white text-xs font-bold uppercase tracking-normal">เปลี่ยนโลโก้</span>
               </div>
             </>
           ) : (
             <div className="flex flex-col items-center gap-2 text-slate-300 group-hover/logo:text-blue-400 transition-colors">
               <Upload size={24} />
-              <span className="text-[10px] font-bold uppercase tracking-wide">อัปโหลดโลโก้</span>
-              <span className="text-[9px] text-slate-300">PNG, SVG (พื้นหลังโปร่งใส)</span>
+              <span className="text-xs font-bold uppercase tracking-wide">อัปโหลดโลโก้</span>
+              <span className="text-xs text-slate-300">PNG, SVG (พื้นหลังโปร่งใส)</span>
             </div>
           )}
           <label className="absolute inset-0 cursor-pointer">
@@ -308,7 +304,7 @@ function BrandCard({ client, index, isUploading, onUpdate, onRemove, onFileUploa
         {/* URL input toggle */}
         <button
           onClick={() => setShowUrlInput(!showUrlInput)}
-          className="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-slate-400 hover:text-blue-600 transition-colors"
+          className="mt-2 flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-blue-600 transition-colors"
         >
           <LinkIcon size={11} /> {showUrlInput ? 'ซ่อน URL' : 'ใส่ URL แทน'}
         </button>
@@ -318,7 +314,7 @@ function BrandCard({ client, index, isUploading, onUpdate, onRemove, onFileUploa
             type="text"
             value={client.image}
             onChange={(e) => onUpdate(index, 'image', e.target.value)}
-            className="mt-2 w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-[11px] font-mono focus:outline-none focus:border-blue-500 transition-all text-slate-600"
+            className="mt-2 w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:border-blue-500 transition-all text-slate-600"
             placeholder="https://... (URL โลโก้)"
           />
         )}
@@ -326,7 +322,7 @@ function BrandCard({ client, index, isUploading, onUpdate, onRemove, onFileUploa
 
       {/* Brand Name */}
       <div>
-        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">ชื่อแบรนด์</label>
+        <label className="block text-xs font-semibold uppercase tracking-normal text-slate-400 mb-1.5">ชื่อแบรนด์</label>
         <input
           type="text"
           value={client.name}
@@ -339,12 +335,12 @@ function BrandCard({ client, index, isUploading, onUpdate, onRemove, onFileUploa
       {/* Status badge */}
       <div className="flex items-center gap-2">
         {client.image ? (
-          <span className="text-[9px] font-bold bg-green-50 text-green-600 border border-green-100 px-2 py-1 rounded-full">✓ มีโลโก้</span>
+          <span className="text-xs font-bold bg-green-50 text-green-600 border border-green-100 px-2 py-1 rounded-full">✓ มีโลโก้</span>
         ) : (
-          <span className="text-[9px] font-bold bg-amber-50 text-amber-600 border border-amber-100 px-2 py-1 rounded-full">⚠ ใช้ไอคอนแทน</span>
+          <span className="text-xs font-bold bg-amber-50 text-amber-600 border border-amber-100 px-2 py-1 rounded-full">⚠ ใช้ไอคอนแทน</span>
         )}
         {client.name && (
-          <span className="text-[9px] font-bold bg-slate-50 text-slate-500 border border-slate-100 px-2 py-1 rounded-full uppercase tracking-wide">
+          <span className="text-xs font-bold bg-slate-50 text-slate-500 border border-slate-100 px-2 py-1 rounded-full uppercase tracking-wide">
             {client.name}
           </span>
         )}
