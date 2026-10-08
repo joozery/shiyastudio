@@ -1,0 +1,6 @@
+import clientPromise from '@/lib/mongodb';
+import {defaultCategories,defaultGenders} from '@/lib/creators';
+import ApplicationForm from './ApplicationForm';
+export const metadata={title:'สมัคร Influencer — SHIYA STUDIO'};
+export const dynamic='force-dynamic';
+export default async function ApplyPage(){const db=(await clientPromise).db('shiyastudio');const settings=await db.collection('settings').findOne({type:'influencer'},{projection:{profileCategories:1,profileGenders:1,applicantTerms:1,applicantPrivacy:1}});return <ApplicationForm categories={settings?.profileCategories||defaultCategories} genders={settings?.profileGenders||defaultGenders} terms={settings?.applicantTerms||'การส่งใบสมัครยังไม่ใช่การรับงานหรือการรับประกันงาน ทีม SHIYA จะตรวจข้อมูลก่อนอนุมัติโปรไฟล์ กรุณาส่งข้อมูลที่ถูกต้องและผลงานที่คุณมีสิทธิ์นำเสนอ รายละเอียดงานและค่าตอบแทนจะตกลงแยกในแต่ละแคมเปญ'} privacy={settings?.applicantPrivacy||'SHIYA STUDIO เก็บข้อมูลใบสมัครเพื่อประเมินโปรไฟล์ คัดเลือกและติดต่อประสานงานแคมเปญ ทีมที่ได้รับสิทธิ์สามารถดูข้อมูลส่วนตัวและข้อมูลติดต่อได้ เมื่ออนุมัติแล้ว Catalog จะแสดงเฉพาะชื่อในวงการ รูป ประเภทคอนเทนต์ ช่องทางโซเชียล สถิติ และผลงาน ข้อมูลบัญชีธนาคาร ภาษี และรูปบัตรประชาชนเก็บแยกเพื่อให้ผู้ดูแลที่ได้รับสิทธิ์ตรวจสอบและประสานงานเอกสารหรือค่าตอบแทน โดยไม่แสดงใน Catalog ติดต่อเรื่องข้อมูลของคุณได้ที่ shiya.studioo@gmail.com'}/>}

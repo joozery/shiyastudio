@@ -1,138 +1,50 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { 
-  Zap, 
-  Cpu, 
-  Globe, 
-  Layers, 
-  Activity, 
-  ShieldCheck, 
-  Eclipse, 
-  Hexagon 
-} from "lucide-react";
-import { useTranslations } from 'next-intl';
+import Image from "next/image";
+import { ArrowUpRight } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/navigation";
+import styles from "./ClientsSection.module.css";
 
-export const ClientsSection = () => {
-  const t = useTranslations('clients');
-  const [mounted, setMounted] = useState(false);
-  const [clients, setClients] = useState<any[]>([
-    { name: "Aether", image: "" },
-    { name: "Lumina", image: "" },
-    { name: "GlobalTech", image: "" },
-    { name: "Horizon", image: "" },
-    { name: "Vitality", image: "" },
-    { name: "Sentinely", image: "" },
-    { name: "Zenith", image: "" },
-    { name: "Vertex", image: "" }
-  ]);
+interface Client {
+  name: string;
+  image?: string;
+}
 
-  useEffect(() => {
-    setMounted(true);
-    fetch('/api/clients')
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.clients && data.clients.length > 0) {
-          setClients(data.clients);
-        }
-      })
-      .catch(err => console.error('Failed to load clients', err));
-  }, []);
-
-  const reversedLogos = [...clients].reverse();
+export const ClientsSection = ({ initialData }: { initialData?: { clients?: Client[] } }) => {
+  const t = useTranslations("clients");
+  const thai = useLocale() === "th";
+  const clients = initialData?.clients ?? [];
+  if (!clients.length) return null;
 
   return (
-    <section className="relative w-full py-16 md:py-32 bg-black text-white px-4 md:px-12 font-sans overflow-hidden border-t border-white/5">
-      
-      {/* Background Decorative Element */}
-      <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-blue-600/5 blur-[100px] -translate-y-1/2 rounded-full pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto flex flex-col items-center">
-        
-        {/* Subtle Label */}
-        <div className="flex items-center gap-3 mb-10 opacity-40">
-           <div className="w-12 h-[1px] bg-white" />
-           <span className="text-[10px] font-bold uppercase tracking-[0.4em]">{t('label')}</span>
-           <div className="w-12 h-[1px] bg-white" />
+    <section aria-labelledby="clients-heading" className="bg-[#030910] bg-[url('/cover1.png')] bg-cover bg-center bg-no-repeat px-6 py-14 text-white md:px-10 md:py-20 lg:px-16 lg:py-24">
+      <div className="mx-auto max-w-[1600px]">
+        <div className="mb-9 grid gap-6 md:mb-12 lg:grid-cols-12 lg:gap-12">
+          <div className="lg:col-span-7">
+            <p className="mb-5 flex items-center gap-3 text-xs font-medium tracking-[0.12em] text-blue-300"><span className="size-1.5 rounded-full bg-blue-400" />OUR CLIENTS & PARTNERS</p>
+            <h2 id="clients-heading" className="max-w-2xl text-[clamp(1.75rem,3.5vw,3rem)] font-medium leading-[1.35] tracking-tight">{thai ? <><span className="block">ได้รับความไว้วางใจ</span><span className="block">จากเหล่าผู้มีวิสัยทัศน์</span></> : t('label')}</h2>
+          </div>
+          <div className="max-w-md lg:col-span-5 lg:justify-self-end lg:pt-10">
+            <p className="text-sm leading-7 text-white/65 md:text-base">{thai ? 'ความไว้วางใจจากแบรนด์ที่เราได้ร่วมสร้างสรรค์ผลงาน คือแรงผลักดันให้เราพัฒนาทุกไอเดียให้ดียิ่งขึ้น' : 'The trust of the brands we work with inspires us to make every idea stronger, every story clearer and every collaboration more meaningful.'}</p>
+            <Link href="/contact" className="mt-4 inline-flex min-h-11 items-center gap-3 text-sm font-medium text-blue-300 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-400">{t('cta')}<ArrowUpRight size={17} /></Link>
+          </div>
         </div>
 
-        {/* Marquee Container */}
-        <div className="relative w-full overflow-hidden flex flex-col gap-10 md:gap-16">
-          {mounted && (
-            <>
-              {/* Row 1: Left to Right */}
-              <div className="flex w-full overflow-hidden">
-                 <div className="flex whitespace-nowrap animate-marquee gap-4 md:gap-6 items-center">
-                    {[...clients, ...clients].map((client, idx) => (
-                      <div key={idx} className="flex-shrink-0 group cursor-pointer">
-                        <div className="w-44 h-20 md:w-56 md:h-24 rounded-lg md:rounded-xl overflow-hidden border border-white/10 group-hover:border-blue-500/60 transition-all duration-500 bg-white p-4 flex items-center justify-center">
-                           {client.image ? (
-                              <img src={client.image} alt={client.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500" />
-                           ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-white/20 group-hover:text-white/40 transition-colors select-none">
-                                  {client.name}
-                                </span>
-                              </div>
-                           )}
-                        </div>
-                      </div>
-                    ))}
-                 </div>
+        <div className="space-y-4">
+          {[clients.slice(0, Math.ceil(clients.length / 2)), clients.slice(Math.ceil(clients.length / 2))].filter(row => row.length).map((row, rowIndex) => (
+            <div key={rowIndex} className={styles.viewport} tabIndex={0} role="region" aria-label={thai ? `โลโก้ลูกค้า แถว ${rowIndex + 1}` : `Client logos row ${rowIndex + 1}`}>
+              <div className={`${styles.track} ${rowIndex === 1 ? styles.reverse : ''}`}>
+                {[0, 1].map(copy => <ul key={copy} aria-hidden={copy === 1 ? true : undefined} className={styles.group}>
+                  {row.map((client, index) => <li key={`${client.name}-${index}`} className="flex h-24 w-36 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-blue-200/70 bg-[linear-gradient(135deg,#ffffff_0%,#edf4ff_100%)] p-1 shadow-[0_8px_30px_#0000001a] md:h-28 md:w-44 transition-colors hover:border-blue-400">
+                    {client.image ? <div className="relative h-full w-full"><Image src={client.image} alt={copy === 0 ? client.name : ''} fill sizes="(max-width: 768px) 134px, 166px" className="object-contain" /></div> : <span className="px-3 text-center text-sm font-semibold text-[#263447]">{client.name}</span>}
+                  </li>)}
+                </ul>)}
               </div>
-
-              {/* Row 2: Right to Left */}
-              <div className="flex w-full overflow-hidden">
-                 <div className="flex whitespace-nowrap animate-marquee2 gap-4 md:gap-6 items-center">
-                    {[...reversedLogos, ...reversedLogos].map((client, idx) => (
-                      <div key={idx} className="flex-shrink-0 group cursor-pointer">
-                        <div className="w-44 h-20 md:w-56 md:h-24 rounded-lg md:rounded-xl overflow-hidden border border-white/10 group-hover:border-blue-500/60 transition-all duration-500 bg-white p-4 flex items-center justify-center">
-                           {client.image ? (
-                              <img src={client.image} alt={client.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500" />
-                           ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-white/20 group-hover:text-blue-400/60 transition-colors select-none">
-                                  {client.name}
-                                </span>
-                              </div>
-                           )}
-                        </div>
-                      </div>
-                    ))}
-                 </div>
-              </div>
-            </>
-          )}
+            </div>
+          ))}
         </div>
-
-        {/* Bottom Call to Action */}
-        <div className="mt-24 text-center">
-           <p className="text-sm md:text-base text-white/40 max-w-lg mx-auto leading-relaxed">
-             {t('desc')}
-           </p>
-           <button className="mt-8 px-8 py-3 rounded-full border border-white/10 text-[10px] font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all">
-              {t('cta')}
-           </button>
-        </div>
-
       </div>
-
-      <style jsx global>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        @keyframes marquee2 {
-          0% { transform: translateX(-50%); }
-          100% { transform: translateX(0); }
-        }
-        .animate-marquee {
-          animation: marquee 30s linear infinite;
-        }
-        .animate-marquee2 {
-          animation: marquee2 35s linear infinite;
-        }
-      `}</style>
     </section>
   );
 };

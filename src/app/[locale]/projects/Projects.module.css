@@ -1,0 +1,63 @@
+.scene {
+  --scene-progress: 0;
+  --parallax-y: 0px;
+  --scene-reveal: 1;
+}
+
+.visual {
+  transform: translate3d(0, var(--parallax-y), 0) scale(1.2);
+  will-change: transform;
+}
+
+:global([data-motion="true"]) .panel {
+  transform: translate3d(0, calc((1 - var(--scene-reveal)) * 65px), 0) scale(calc(0.94 + var(--scene-reveal) * 0.06));
+  opacity: calc(0.3 + var(--scene-reveal) * 0.7);
+  transform-origin: center top;
+  will-change: transform, opacity;
+}
+
+:global([data-motion="true"]) .content {
+  transform: translate3d(0, calc((1 - var(--scene-reveal)) * 45px), 0);
+}
+
+.hero { --hero-progress: 0; }
+.heroVisual { transform: translate3d(0, calc(var(--hero-progress) * 110px), 0) scale(1.18); }
+.heroContent { transform: translate3d(0, calc(var(--hero-progress) * -65px), 0); opacity: calc(1 - var(--hero-progress) * 0.65); }
+
+.railFill {
+  transform-origin: top;
+  transform: scaleY(var(--scene-progress));
+}
+
+.scene[data-active="true"] .railNumber { color: #0085ff; }
+
+@media (prefers-reduced-motion: reduce) {
+  .visual, .heroVisual, .heroContent, :global([data-motion="true"]) .panel, :global([data-motion="true"]) .content { transform: none; opacity: 1; will-change: auto; }
+}
+
+.scene:focus-within .panel, .scene:focus-within .content { transform: none !important; opacity: 1 !important; }
+
+:global(html.lenis) { scroll-behavior: auto !important; }
+
+.heroTitle {
+  font-size: clamp(3.25rem, 7.7vw, 7.5rem);
+  line-height: 1.04;
+}
+
+.heroShade {
+  background: linear-gradient(90deg, #000 0%, #000000e6 35%, #00000033 75%), linear-gradient(0deg, #000 0%, transparent 40%);
+}
+
+.panelShade {
+  background: linear-gradient(90deg, #000000f2 0%, #000000b3 30%, #0000000d 65%), linear-gradient(0deg, #00000080 0%, transparent 65%);
+}
+
+.sceneTitle { font-size: clamp(2rem, 4.7vw, 4.5rem); }
+
+@media (min-width: 768px) {
+  .scene { padding-right: 40px; }
+}
+
+@media (min-width: 1024px) {
+  .panel, .content { min-height: min(560px, 70svh); }
+}

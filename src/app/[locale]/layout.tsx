@@ -7,6 +7,7 @@ import { getMessages, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getOrganizationSchema, getWebSiteSchema, getFAQSchema } from '@/lib/schemas';
+import { PageTransition } from '@/components/layout/PageTransition';
 
 const notoThai = Noto_Sans_Thai({
   variable: "--font-noto-thai",
@@ -133,6 +134,7 @@ export default async function RootLayout({
         <JsonLd data={getFAQSchema(locale as 'en' | 'th')} />
 
         <NextIntlClientProvider messages={messages}>
+          <PageTransition />
           {children}
         </NextIntlClientProvider>
       </body>

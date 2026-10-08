@@ -1,115 +1,64 @@
 "use client";
 
-import React from "react";
-import { ArrowRight, Mail, Phone, MapPin } from "lucide-react";
+import Image from "next/image";
+import styles from "./Footer.module.css";
+import { ArrowUp, ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/navigation";
 
-export const Footer = () => {
+const services = [
+  { name: "Influencer / KOL", href: "/services/influencer" },
+  { name: "Creative Production", href: "/services/production" },
+  { name: "Graphic Design", href: "/services/graphic-design" },
+  { name: "Video & Motion", href: "/services/vdo-motion" },
+  { name: "Audio & Music", href: "/services/mix-master-music" },
+];
+const address = "23/125 หมู่บ้าน สถาปัตย์ ซอย นวมินทร์161 แยก1-4 ถนน นวมินทร์ แขวง นวลจันทร์ เขต บึงกุ่ม กทม. 10230";
+const linkStyle = "inline-flex min-h-9 items-center text-sm leading-relaxed text-white/65 transition-colors hover:text-blue-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-400";
+
+export const Footer = ({ showCta = true }: { showCta?: boolean }) => {
+  const thai = useLocale() === "th";
+  const nav = useTranslations("nav");
   return (
-    <footer className="w-full bg-[#050505] text-white pt-16 pb-8 border-t border-white/10 font-sans">
-      <div className="max-w-6xl mx-auto px-6 md:px-12">
-        
-        {/* Footer Links Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-12 mb-16">
-          
-          {/* Col 1: Brand */}
-          <div className="lg:col-span-1 flex flex-col gap-4">
-            <div className="flex flex-col tracking-widest">
-              <span className="text-xl font-black tracking-[0.2em]">S H I Y A</span>
-              <span className="text-[9px] font-bold tracking-[0.4em] text-white/70">STUDIO</span>
-            </div>
-            <p className="text-white/50 text-[10px] leading-relaxed pr-2">
-              Creative branding agency & production studio. We create immersive content and meaningful connections.
-            </p>
-            <div className="flex items-center gap-2 mt-1">
-               {/* Social Icons using inline SVGs to match design exactly */}
-               <a href="#" className="w-7 h-7 rounded-full border border-white/20 flex items-center justify-center hover:border-[#0EA5E9] hover:text-[#0EA5E9] transition-colors text-white/80">
-                 <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-               </a>
-               <a href="#" className="w-7 h-7 rounded-full border border-white/20 flex items-center justify-center hover:border-[#0EA5E9] hover:text-[#0EA5E9] transition-colors text-white/80">
-                 <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path></svg>
-               </a>
-               <a href="#" className="w-7 h-7 rounded-full border border-white/20 flex items-center justify-center hover:border-[#0EA5E9] hover:text-[#0EA5E9] transition-colors text-white/80">
-                 <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-               </a>
-               <a href="#" className="w-7 h-7 rounded-full border border-white/20 flex items-center justify-center hover:border-[#0EA5E9] hover:text-[#0EA5E9] transition-colors text-white/80">
-                 <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg>
-               </a>
-               <a href="#" className="w-7 h-7 rounded-full border border-white/20 flex items-center justify-center hover:border-[#0EA5E9] hover:text-[#0EA5E9] transition-colors text-white/80">
-                 <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
-               </a>
-            </div>
+    <footer className="border-t border-white/10 bg-black text-white">
+      <div className="mx-auto max-w-[1600px] px-6 md:px-10 lg:px-16">
+        {showCta && <div className="flex flex-col gap-7 border-b border-white/15 py-12 md:py-16 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
+          <div>
+            <p className="mb-4 flex items-center gap-2.5 text-xs font-medium tracking-[0.1em] text-blue-300"><span className="size-1.5 rounded-full bg-blue-400" />LET’S WORK TOGETHER</p>
+            <h2 className="max-w-2xl text-[clamp(1.75rem,3.5vw,3rem)] font-medium leading-[1.3] tracking-tight">
+              {thai ? <>มีไอเดียดี ๆ ในใจ?<br /><span className="text-white/55">มาสร้างให้เกิดขึ้นจริง</span></> : <>Have something in mind?<br /><span className="text-white/55">Let’s bring it to life.</span></>}
+            </h2>
           </div>
-
-          {/* Col 2: Services */}
-          <div className="flex flex-col gap-4">
-             <h4 className="text-[10px] font-bold tracking-widest uppercase">SERVICES</h4>
-             <ul className="flex flex-col gap-2">
-               {["Influencer Marketing", "Content Production", "Video Production", "Graphic Design", "Motion & Animation", "Audio Production"].map(link => (
-                 <li key={link}><a href="#" className="text-white/60 hover:text-white text-[11px]">{link}</a></li>
-               ))}
-             </ul>
+          <Link href="/contact" className="inline-flex min-h-12 w-fit shrink-0 items-center gap-8 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-[#0756c7] transition-colors hover:bg-blue-100">
+            {thai ? 'เริ่มโปรเจกต์กับเรา' : 'Start a project'}<ArrowUpRight size={18} />
+          </Link>
+        </div>}
+        <div className={`${styles.grid} grid grid-cols-1 gap-10 py-12 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8 lg:py-14`}>
+          <div className={`${styles.brand} min-w-0 lg:col-span-3`}>
+            <Link href="/" aria-label="Shiya Studio" className="inline-block"><Image src="/logo/logo.png" alt="Shiya Studio Logo" width={144} height={144} sizes="144px" className={`${styles.logo} size-36 object-contain`} /></Link>
+            <p className="mt-4 max-w-[280px] text-sm leading-relaxed text-white/65">{thai ? 'สตูดิโอสร้างสรรค์แบรนด์และโปรดักชัน เปลี่ยนไอเดียให้เป็นคอนเทนต์และความสัมพันธ์ที่มีความหมาย' : 'Creative branding agency & production studio. We create immersive content and meaningful connections.'}</p>
+            <p className={`${styles.location} mt-5 text-xs tracking-[0.08em] text-white/40`}>BANGKOK, THAILAND</p>
           </div>
-
-          {/* Col 3: Company */}
-          <div className="flex flex-col gap-4">
-             <h4 className="text-[10px] font-bold tracking-widest uppercase">COMPANY</h4>
-             <ul className="flex flex-col gap-2">
-               {["About Us", "Our Work", "Blog", "Careers", "Contact"].map(link => (
-                 <li key={link}><a href="#" className="text-white/60 hover:text-white text-[11px]">{link}</a></li>
-               ))}
-             </ul>
+          <nav aria-label={thai ? 'บริการในส่วนท้าย' : 'Footer services'} className="min-w-0 lg:col-span-3">
+            <h3 className="mb-5 text-xs font-semibold tracking-[0.1em] text-white/90">{thai ? 'บริการของเรา' : 'OUR SERVICES'}</h3>
+            <ul className="space-y-1">{services.map(service => <li key={service.href}><Link href={service.href} className={linkStyle}>{service.name}</Link></li>)}</ul>
+          </nav>
+          <nav aria-label={thai ? 'เมนูในส่วนท้าย' : 'Footer navigation'} className="min-w-0 lg:col-span-2">
+            <h3 className="mb-5 text-xs font-semibold tracking-[0.1em] text-white/90">{thai ? 'รู้จักเรา' : 'EXPLORE'}</h3>
+            <ul className="space-y-1">{[{ name: nav('home'), href: '/' }, { name: nav('projects'), href: '/projects' }, { name: thai ? 'อินฟลูเอนเซอร์' : 'Creators', href: '/influencers' }, { name: nav('contact'), href: '/contact' }].map(link => <li key={link.href}><Link href={link.href} className={linkStyle}>{link.name}</Link></li>)}</ul>
+          </nav>
+          <div className={`${styles.contact} min-w-0 lg:col-span-4`}>
+            <h3 className="mb-5 text-xs font-semibold tracking-[0.1em] text-white/90">{thai ? 'ติดต่อสตูดิโอ' : 'GET IN TOUCH'}</h3>
+            <ul className="space-y-4">
+              <li><a href="mailto:shiya.studioo@gmail.com" className={`${linkStyle} gap-3 break-all`}><Mail size={17} className="shrink-0 text-blue-300" />shiya.studioo@gmail.com</a></li>
+              <li><a href="tel:0868329299" className={`${linkStyle} gap-3`}><Phone size={17} className="shrink-0 text-blue-300" />086-832-9299</a></li>
+              <li><a href={`https://maps.google.com/?q=${encodeURIComponent(address)}`} target="_blank" rel="noopener noreferrer" className={`${linkStyle} items-start gap-3`}><MapPin size={17} className="mt-1 shrink-0 text-blue-300" /><span className="max-w-sm leading-7">{address}</span></a></li>
+            </ul>
           </div>
-
-          {/* Col 4: Contact */}
-          <div className="flex flex-col gap-4 lg:col-span-1">
-             <h4 className="text-[10px] font-bold tracking-widest uppercase">CONTACT</h4>
-             <ul className="flex flex-col gap-3">
-                <li className="flex items-center gap-2 text-white/60 text-[11px] hover:text-[#0EA5E9] transition-colors">
-                  <Mail className="w-3.5 h-3.5 text-white shrink-0" /> 
-                  <a href="mailto:shiya.studioo@gmail.com">shiya.studioo@gmail.com</a>
-                </li>
-                <li className="flex items-center gap-2 text-white/60 text-[11px] hover:text-[#0EA5E9] transition-colors">
-                  <Phone className="w-3.5 h-3.5 text-white shrink-0" /> 
-                  <a href="tel:0868329299">086-832-9299</a>
-                </li>
-                <li className="flex items-start gap-2 text-white/60 text-[11px] leading-relaxed hover:text-[#0EA5E9] transition-colors">
-                  <MapPin className="w-3.5 h-3.5 text-white shrink-0 mt-0.5" /> 
-                  <a href="https://maps.google.com/?q=23/125+หมู่บ้าน+สถาปัตย์+ซอย+นวมินทร์161+แยก1-4+ถนน+นวมินทร์+แขวง+นวลจันทร์+เขต+บึงกุ่ม+กทม.+10230" target="_blank" rel="noopener noreferrer">
-                    23/125 หมู่บ้าน สถาปัตย์ ซอย นวมินทร์161 แยก1-4<br/>ถนน นวมินทร์ แขวง นวลจันทร์ เขต บึงกุ่ม กทม. 10230
-                  </a>
-                </li>
-             </ul>
-          </div>
-
-          {/* Col 5: Newsletter */}
-          <div className="flex flex-col gap-4 lg:col-span-1">
-             <h4 className="text-[10px] font-bold tracking-widest uppercase">NEWSLETTER</h4>
-             <p className="text-white/60 text-[11px] leading-relaxed mb-1">
-               Get the latest updates on<br/>campaigns and insights.
-             </p>
-             <form className="relative w-full max-w-[240px]">
-               <input 
-                 type="email" 
-                 placeholder="Your email" 
-                 className="w-full bg-transparent border border-white/20 rounded-md py-2.5 pl-3 pr-10 text-[11px] text-white placeholder-white/40 focus:outline-none focus:border-[#0EA5E9] transition-colors"
-               />
-               <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 text-[#0EA5E9] hover:text-white transition-colors p-1">
-                 <ArrowRight className="w-3.5 h-3.5" />
-               </button>
-             </form>
-          </div>
-
         </div>
-
-        {/* Bottom Line */}
-        <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-white/40 text-[10px]">
-           <p>© 2026 หจก. ชิญ่า สตูดิโอ All rights reserved.</p>
-           <div className="flex items-center gap-3">
-             <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-             <span>|</span>
-             <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-           </div>
+        <div className={`${styles.bottom} flex flex-col-reverse gap-5 border-t border-white/10 py-6 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between`}>
+          <p className="leading-relaxed">© 2026 {thai ? 'หจก. ชิญ่า สตูดิโอ' : 'Shiya Studio Limited Partnership'}. All rights reserved.</p>
+          <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })} className="inline-flex min-h-11 w-fit items-center gap-3 text-white/70 transition-colors hover:text-white">{thai ? 'กลับขึ้นด้านบน' : 'Back to top'}<span className="flex size-10 items-center justify-center rounded-full border border-white/20"><ArrowUp size={16} /></span></button>
         </div>
       </div>
     </footer>

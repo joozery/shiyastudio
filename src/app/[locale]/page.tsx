@@ -1,36 +1,44 @@
-"use client";
-
 import { Navbar } from "@/components/layout/Navbar";
 import { HeroSection } from "@/components/sections/HeroSection";
-import { ProjectsSection } from "@/components/sections/ProjectsSection";
+import clientPromise from "@/lib/mongodb";
 import { ServicesSection } from "@/components/sections/ServicesSection";
 import { InfluencerSection } from "@/components/sections/InfluencerSection";
 import { ClientsSection } from "@/components/sections/ClientsSection";
 import { Footer } from "@/components/layout/Footer";
+import { ContactBanner } from "@/components/sections/ContactBanner";
 
-export default function Home() {
+export default async function Home() {
+  // Read all homepage settings together instead of four browser requests.
+  const settings = await clientPromise.then(client =>
+    client.db('shiyastudio').collection('settings').find(
+      { type: { $in: ['hero', 'services', 'influencer', 'clients'] } },
+      { projection: { _id: 0, updatedAt: 0 } }
+    ).toArray()
+  ).catch(error => {
+    console.error('Failed to load homepage settings', error);
+    return [];
+  });
+  const data = Object.fromEntries(settings.map(setting => [setting.type, JSON.parse(JSON.stringify(setting))]));
   return (
     <main className="relative min-h-screen bg-black">
       {/* Navigation */}
-      <Navbar />
+      <Navbar overlay />
 
       {/* Main Hero Section */}
-      <HeroSection />
+      <HeroSection initialData={data.hero ?? {}} />
 
       {/* Services/Grow Section */}
-      <ServicesSection />
-
-      {/* Projects Showcase Section */}
-      {/* <ProjectsSection /> */}
+      <div id="home-services" className="scroll-mt-20"><ServicesSection initialData={data.services ?? {}} /></div>
 
       {/* Influencer Marketing & Commerce Section */}
-      <InfluencerSection />
+      <InfluencerSection initialData={data.influencer ?? {}} />
 
       {/* Clients Logo Showcase Section */}
-      <ClientsSection />
+      <ClientsSection initialData={data.clients ?? {}} />
 
       {/* Final Premium Footer */}
-      <Footer />
-</main>
+      <ContactBanner />
+      <Footer showCta={false} />
+    </main>
   );
 }

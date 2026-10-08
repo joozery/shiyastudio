@@ -598,7 +598,8 @@ export default function ServiceWorksAdminPage() {
 
             </div>
             
-            <div className="px-8 py-6 border-t border-slate-100 flex justify-end bg-slate-50/50">
+            <div className="px-8 py-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/50">
+              <button onClick={handleSave} disabled={saving} className="px-6 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold disabled:opacity-50">{saving ? 'กำลังบันทึก…' : 'บันทึกการเปลี่ยนแปลง'}</button>
               <button onClick={closeModal} className="px-10 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all">Done Editing</button>
             </div>
           </div>

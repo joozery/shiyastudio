@@ -25,6 +25,8 @@ import { Toaster } from 'sonner';
 import Link from 'next/link';
 import LogoutButton from '@/components/admin/LogoutButton';
 import { cookies } from 'next/headers';
+import {getAdminSession} from '@/lib/auth';
+import {redirect} from 'next/navigation';
 import clientPromise from '@/lib/mongodb';
 
 export default async function AdminLayout({
@@ -36,6 +38,7 @@ export default async function AdminLayout({
 }) {
   const resolvedParams = await params;
   const locale = resolvedParams?.locale || 'th';
+  if (!await getAdminSession()) redirect(`/${locale}/admin/login`);
   
   // Get User Info from DB
   const cookieStore = await cookies();
@@ -135,7 +138,7 @@ export default async function AdminLayout({
             <p className="px-4 text-[9px] font-bold text-white/10 uppercase tracking-[0.4em] mb-4">ฝ่ายผลิต</p>
             <div className="space-y-1">
               <NavItem icon={<Layers size={16} />} label="ทรัพยากรงาน" />
-              <NavItem icon={<RefreshCw size={16} />} label="ฐานข้อมูล KOL" />
+              <Link href={`/${locale}/admin/creators`} className="block outline-none"><NavItem icon={<RefreshCw size={16} />} label="ฐานข้อมูล KOL / Creators" /></Link>
               <NavItem icon={<UserPlus size={16} />} label="ทีมงาน Shiya" />
             </div>
           </div>
@@ -155,6 +158,7 @@ export default async function AdminLayout({
               <Link href={`/${locale}/admin/clients`} className="block outline-none">
                 <NavItem icon={<Globe size={16} />} label="Clients Section" />
               </Link>
+              <Link href={`/${locale}/admin/creators`} className="block rounded-xl px-4 py-3 text-sm text-white/70 hover:bg-white/10 hover:text-white">โปรไฟล์อินฟลูเอนเซอร์</Link>
               <Link href={`/${locale}/admin/influencer`} className="block outline-none">
                 <NavItem icon={<Play size={16} />} label="Influencer Section" />
               </Link>

@@ -1,0 +1,42 @@
+.viewport {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  animation: slide 45s linear infinite;
+}
+
+.group {
+  display: flex;
+  gap: 16px;
+  padding-right: 16px;
+}
+
+.reverse {
+  animation-direction: reverse;
+  animation-duration: 40s;
+}
+
+.viewport:hover .track,
+.viewport:focus-within .track {
+  animation-play-state: paused;
+}
+
+.viewport:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 6px;
+  border-radius: 12px;
+}
+
+@keyframes slide {
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viewport { overflow-x: auto; mask-image: none; }
+  .track { animation: none; }
+  .group[aria-hidden="true"] { display: none; }
+}

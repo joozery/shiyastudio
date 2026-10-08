@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
+import { requireAdmin, sameOrigin } from '@/lib/auth';
 import clientPromise from '@/lib/mongodb';
 
 export async function GET() {
   try {
     const client = await clientPromise;
     const db = client.db('shiyastudio');
-    const influencerData = await db.collection('settings').findOne({ type: 'influencer' });
+    const influencerData = await db.collection('settings').findOne({ type: 'influencer' }, { projection: { items: 1, categories: 1, profileCategories: 1, profileGenders: 1, applicantTerms: 1, applicantPrivacy: 1 } });
     
     if (!influencerData) {
       return NextResponse.json({
@@ -35,8 +36,13 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
+  const denied = await requireAdmin(); if (denied) return denied;
+  if (!sameOrigin(req)) return NextResponse.json({error:'Invalid origin'}, {status:403});
   try {
-    const body = await req.json();
+    const incoming = await req.json();
+    const body: Record<string, unknown> = {};
+    for (const key of ['applicantTerms','applicantPrivacy']) if (typeof incoming[key] === 'string') body[key] = incoming[key].slice(0,10000);
+    for (const key of ['items','categories','profileCategories','profileGenders']) if (Array.isArray(incoming[key])) body[key] = incoming[key];
     const client = await clientPromise;
     const db = client.db('shiyastudio');
     

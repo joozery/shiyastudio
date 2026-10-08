@@ -7,6 +7,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
+    if (typeof email !== 'string' || typeof password !== 'string') return NextResponse.json({error: 'Invalid credentials'}, {status:400});
 
     // 1. Check Primary Admin from ENV (Bypass/SuperAdmin)
     const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'zerryboy28@gmail.com';

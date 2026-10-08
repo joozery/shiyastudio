@@ -1,57 +1,33 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-
+import { createHash } from 'node:crypto';
+import clientPromise from './mongodb';
 export interface AdminSession {
-  email: string;
-  authenticated: true;
+    email: string;
+    authenticated: true;
 }
-
-/**
- * Reads and parses the `admin_session` cookie set by /api/auth/verify-otp.
- * Returns null if missing/invalid/expired.
- */
 export async function getAdminSession(): Promise<AdminSession | null> {
-  const cookieStore = await cookies();
-  const session = cookieStore.get('admin_session');
-
-  if (!session?.value) return null;
-
-  try {
-    if (session.value.startsWith('{')) {
-      const data = JSON.parse(session.value);
-      if (data?.authenticated) {
-        return { email: data.email, authenticated: true };
-      }
-      return null;
+    try {
+        const value = (await cookies()).get('admin_session')?.value;
+        if (!value)
+            return null;
+        const parsed = JSON.parse(value);
+        if (typeof parsed.token !== 'string' || !/^[a-f0-9]{64}$/.test(parsed.token))
+            return null;
+        const db = (await clientPromise).db('shiyastudio');
+        const session = await db.collection('admin_sessions').findOne({ tokenHash: createHash('sha256').update(parsed.token).digest('hex'), expiresAt: { $gt: new Date() } });
+        if (!session)
+            return null;
+        const user = await db.collection('users').findOne({ email: session.email, status: { $ne: 'inactive' } }, { projection: { email: 1 } });
+        if (!user)
+            return null;
+        return { email: user.email, authenticated: true };
     }
-    if (session.value === 'authenticated') {
-      return { email: 'admin@shiyastudio.com', authenticated: true };
+    catch {
+        return null;
     }
-  } catch {
-    return null;
-  }
-
-  return null;
 }
-
-/**
- * Guard for API route handlers. Call at the top of any handler that should
- * only run for a logged-in admin:
- *
- *   const unauthorized = await requireAdmin();
- *   if (unauthorized) return unauthorized;
- *
- * Returns a 401 NextResponse if there is no valid admin session, otherwise null.
- *
- * NOTE: this only protects the specific handler it's called in. The Next.js
- * middleware (src/middleware.ts) does NOT cover /api/* routes (it's excluded
- * from the matcher), so every admin-only API route handler must call this
- * itself - there is no blanket protection at the routing layer.
- */
-export async function requireAdmin(): Promise<NextResponse | null> {
-  const session = await getAdminSession();
-  if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  return null;
-}
+export async function requireAdmin() { return await getAdminSession() ? null : NextResponse.json({ error: 'กรุณาเข้าสู่ระบบอีกครั้ง' }, { status: 401 }); }
+export async function canManageCreatorFinance() { const session = await getAdminSession(); if (!session)
+    return false; const user = await (await clientPromise).db('shiyastudio').collection('users').findOne({ email: session.email }, { projection: { role: 1 } }); return user?.role === 'Super Admin'; }
+export function sameOrigin(req: Request) { const origin = req.headers.get('origin'); return !origin || origin === new URL(req.url).origin; }

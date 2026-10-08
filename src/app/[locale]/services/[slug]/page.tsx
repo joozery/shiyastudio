@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getServiceSchema, getBreadcrumbSchema } from '@/lib/schemas';
 import ServicePageClient from './ServicePageClient';
+import clientPromise from '@/lib/mongodb';
+
+export const dynamic = 'force-dynamic';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://shiyastudio.com';
 
@@ -108,6 +111,17 @@ export default async function ServicePage({
   const isTh = locale === 'th';
   const serviceUrl = `${BASE_URL}/${locale}/services/${slug}`;
   const serviceName = breadcrumbNamesTh[slug] ?? slug;
+  const client = await clientPromise;
+  const settings = await client.db('shiyastudio').collection('settings').findOne(
+    { type: 'services' },
+    { projection: { services: 1 } },
+  );
+  const service = settings?.services?.find((item: { slug: string }) => item.slug === slug);
+  const serviceInfo = {
+    title: typeof service?.title === 'string' ? service.title : serviceName,
+    description: typeof service?.description === 'string' ? service.description : isTh ? meta.descriptionTh : meta.description,
+    image: typeof service?.image === 'string' ? service.image : '',
+  };
 
   const serviceSchema = getServiceSchema({
     name: serviceName,
@@ -126,7 +140,7 @@ export default async function ServicePage({
     <>
       <JsonLd data={serviceSchema} />
       <JsonLd data={breadcrumb} />
-      <ServicePageClient />
+      <ServicePageClient key={slug} serviceInfo={serviceInfo} />
     </>
   );
 }
